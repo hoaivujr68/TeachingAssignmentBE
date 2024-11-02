@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace TeachingAssignmentApp.Data
 {
-    public class TeachingAssignmentDbContext : DbContext
+    public class TeachingAssignmentDbContext : IdentityDbContext<User>
     {
         public TeachingAssignmentDbContext(DbContextOptions<TeachingAssignmentDbContext> options) : base(options)
         {
