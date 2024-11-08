@@ -17,7 +17,7 @@ namespace MyApiNetCore6.Controllers
             _accountService = accountService;
         }
 
-        [HttpPost("SignUp")]
+        [HttpPost("sign-up")]
         public async Task<IActionResult> SignUp(SignUpModel signUpModel)
         {
             var result = await _accountService.SignUpAsync(signUpModel);
@@ -29,7 +29,7 @@ namespace MyApiNetCore6.Controllers
             return BadRequest(new { Success = false, Errors = result.Errors.Select(e => e.Description) });
         }
 
-        [HttpPost("SignIn")]
+        [HttpPost("sign-in")]
         public async Task<IActionResult> SignIn(SignInModel signInModel)
         {
             var token = await _accountService.SignInAsync(signInModel);

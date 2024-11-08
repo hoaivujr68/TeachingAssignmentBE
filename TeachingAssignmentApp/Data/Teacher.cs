@@ -9,7 +9,8 @@ namespace TeachingAssignmentApp.Data
         [Key]
         public Guid Id { get; set; }
         public string? Name { get; set; }
-        public List<ProfessionalGroup>? ListProfessional { get; set; }
+        public List<TeacherProfessionalGroup>? TeacherProfessionalGroups { get; set; }
+        public List<Course>? ListCourse { get; set; }
         public double? GdTeaching { get; set; }
         public double? GdInstruct { get; set; }
     }

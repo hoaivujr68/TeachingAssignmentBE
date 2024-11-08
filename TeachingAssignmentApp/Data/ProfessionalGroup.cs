@@ -10,6 +10,6 @@ namespace TeachingAssignmentApp.Data
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public List<Course>? ListCourse { get; set; }
-        public Guid? TeacherId { get; set; }
+        public List<TeacherProfessionalGroup>? TeacherProfessionalGroups { get; set; }
     }
 }

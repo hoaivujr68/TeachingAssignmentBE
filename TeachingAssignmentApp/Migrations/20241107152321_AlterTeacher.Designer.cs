@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeachingAssignmentApp.Data;
 
@@ -11,9 +12,10 @@ using TeachingAssignmentApp.Data;
 namespace TeachingAssignmentApp.Migrations
 {
     [DbContext(typeof(TeachingAssignmentDbContext))]
-    partial class TeachingAssignmentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241107152321_AlterTeacher")]
+    partial class AlterTeacher
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,7 +190,12 @@ namespace TeachingAssignmentApp.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("TeacherId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TeacherId");
 
                     b.ToTable("ProfessionalGroup");
                 });
@@ -211,24 +218,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Teacher");
-                });
-
-            modelBuilder.Entity("TeachingAssignmentApp.Data.TeacherProfessionalGroup", b =>
-                {
-                    b.Property<Guid>("TeacherId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ProfessionalGroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("TeacherId", "ProfessionalGroupId");
-
-                    b.HasIndex("ProfessionalGroupId");
-
-                    b.ToTable("TeacherProfessionalGroup");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.User", b =>
@@ -349,52 +338,32 @@ namespace TeachingAssignmentApp.Migrations
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.Course", b =>
                 {
-                    b.HasOne("TeachingAssignmentApp.Data.ProfessionalGroup", "ProfessionalGroup")
+                    b.HasOne("TeachingAssignmentApp.Data.ProfessionalGroup", null)
                         .WithMany("ListCourse")
-                        .HasForeignKey("ProfessionalGroupId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ProfessionalGroupId");
 
-                    b.HasOne("TeachingAssignmentApp.Data.Teacher", "Teacher")
+                    b.HasOne("TeachingAssignmentApp.Data.Teacher", null)
                         .WithMany("ListCourse")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ProfessionalGroup");
-
-                    b.Navigation("Teacher");
+                        .HasForeignKey("TeacherId");
                 });
 
-            modelBuilder.Entity("TeachingAssignmentApp.Data.TeacherProfessionalGroup", b =>
+            modelBuilder.Entity("TeachingAssignmentApp.Data.ProfessionalGroup", b =>
                 {
-                    b.HasOne("TeachingAssignmentApp.Data.ProfessionalGroup", "ProfessionalGroup")
-                        .WithMany("TeacherProfessionalGroups")
-                        .HasForeignKey("ProfessionalGroupId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TeachingAssignmentApp.Data.Teacher", "Teacher")
-                        .WithMany("TeacherProfessionalGroups")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ProfessionalGroup");
-
-                    b.Navigation("Teacher");
+                    b.HasOne("TeachingAssignmentApp.Data.Teacher", null)
+                        .WithMany("ListProfessional")
+                        .HasForeignKey("TeacherId");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.ProfessionalGroup", b =>
                 {
                     b.Navigation("ListCourse");
-
-                    b.Navigation("TeacherProfessionalGroups");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.Teacher", b =>
                 {
                     b.Navigation("ListCourse");
 
-                    b.Navigation("TeacherProfessionalGroups");
+                    b.Navigation("ListProfessional");
                 });
 #pragma warning restore 612, 618
         }
