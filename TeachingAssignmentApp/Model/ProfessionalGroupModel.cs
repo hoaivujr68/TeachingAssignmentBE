@@ -7,6 +7,5 @@ namespace TeachingAssignmentApp.Model
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public List<CourseModel>? ListCourse { get; set; }
-        public Guid? TeacherId { get; set; }
     }
 }

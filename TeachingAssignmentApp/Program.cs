@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -65,6 +66,8 @@ builder.Services.AddScoped<IProfessionalGroupRepository, ProfessionalGroupReposi
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ITeacherProfessionalGroupRepository, TeacherProfessionalGroupRepository>();
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 var app = builder.Build();
 

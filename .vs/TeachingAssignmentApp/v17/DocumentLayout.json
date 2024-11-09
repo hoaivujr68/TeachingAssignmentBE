@@ -3,32 +3,12 @@
   "WorkspaceRootPath": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\services\\professionalgroupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\services\\professionalgroupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\repositories\\iteacherrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\repositories\\iteacherrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\repositories\\teacherprofessionalgrouprepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\repositories\\teacherprofessionalgrouprepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\data\\professionalgroup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\data\\professionalgroup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\repositories\\professionalgrouprepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\repositories\\professionalgrouprepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\repositories\\iteacherprofessionalgrouprepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\repositories\\iteacherprofessionalgrouprepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\data\\teachingassignmentdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\data\\teachingassignmentdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\data\\teacherprofessionalgroup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\data\\teacherprofessionalgroup.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\repositories\\iprojectrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\repositories\\iprojectrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,93 +34,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ProfessionalGroup.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\ProfessionalGroup.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Data\\ProfessionalGroup.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\ProfessionalGroup.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Data\\ProfessionalGroup.cs",
+              "DocumentIndex": 1,
+              "Title": "IProjectRepository.cs",
+              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\IProjectRepository.cs",
+              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Repositories\\IProjectRepository.cs",
+              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\IProjectRepository.cs",
+              "RelativeToolTip": "TeachingAssignmentApp\\Repositories\\IProjectRepository.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-08T06:33:42.685Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "TeachingAssignmentDbContext.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\TeachingAssignmentDbContext.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Data\\TeachingAssignmentDbContext.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\TeachingAssignmentDbContext.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Data\\TeachingAssignmentDbContext.cs",
-              "ViewState": "AQIAABEAAAAAAAAAAAAswCMAAAAiAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-08T03:52:58.054Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "TeacherProfessionalGroupRepository.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\TeacherProfessionalGroupRepository.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Repositories\\TeacherProfessionalGroupRepository.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\TeacherProfessionalGroupRepository.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Repositories\\TeacherProfessionalGroupRepository.cs",
-              "ViewState": "AQIAABoAAAAAAAAAAAAgwCYAAABVAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-08T03:42:59.721Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "ITeacherProfessionalGroupRepository.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\ITeacherProfessionalGroupRepository.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Repositories\\ITeacherProfessionalGroupRepository.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\ITeacherProfessionalGroupRepository.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Repositories\\ITeacherProfessionalGroupRepository.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAFAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-08T03:42:30.252Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "TeacherProfessionalGroup.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\TeacherProfessionalGroup.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Data\\TeacherProfessionalGroup.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\TeacherProfessionalGroup.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Data\\TeacherProfessionalGroup.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAArAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-08T03:26:31.987Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ProfessionalGroupRepository.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\ProfessionalGroupRepository.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Repositories\\ProfessionalGroupRepository.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\ProfessionalGroupRepository.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Repositories\\ProfessionalGroupRepository.cs",
-              "ViewState": "AQIAAA4AAAAAAAAAAAAqwB4AAAA5AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-07T17:17:14.196Z",
+              "WhenOpened": "2024-11-09T17:23:19.96Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ProfessionalGroupService.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Services\\ProfessionalGroupService.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Services\\ProfessionalGroupService.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Services\\ProfessionalGroupService.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Services\\ProfessionalGroupService.cs",
-              "ViewState": "AQIAAFAAAAAAAAAAAAAAAGUAAABDAAAA",
+              "Title": "ITeacherRepository.cs",
+              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\ITeacherRepository.cs",
+              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Repositories\\ITeacherRepository.cs",
+              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Repositories\\ITeacherRepository.cs",
+              "RelativeToolTip": "TeachingAssignmentApp\\Repositories\\ITeacherRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAA6AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-07T16:15:14.709Z",
+              "WhenOpened": "2024-11-09T17:23:14.145Z",
               "EditorCaption": ""
             }
           ]

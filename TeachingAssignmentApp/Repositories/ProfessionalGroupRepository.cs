@@ -1,4 +1,5 @@
-﻿using TeachingAssignmentApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
 
@@ -18,13 +19,24 @@ namespace TeachingAssignmentApp.Repositories
             _context = context;
         }
 
-        public async Task<Pagination<ProfessionalGroup>> GetAllAsync(ProfessionalGroupQueryModel queryModel)
+        public async Task<Pagination<ProfessionalGroupModel>> GetAllAsync(ProfessionalGroupQueryModel queryModel)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
 
             IQueryable<ProfessionalGroup> query = BuildQuery(queryModel);
-            var result = await query.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);
+            var ProfessionalGroupQuery = query.Select(professionalGroup => new ProfessionalGroupModel
+            {
+                Id = professionalGroup.Id,
+                Name = professionalGroup.Name,
+                ListCourse = professionalGroup.ListCourse.Select(c => new CourseModel
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                }).ToList()
+            });
+
+            var result = await ProfessionalGroupQuery.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);
             return result;
         }
 
@@ -68,7 +80,8 @@ namespace TeachingAssignmentApp.Repositories
 
         private IQueryable<ProfessionalGroup> BuildQuery(ProfessionalGroupQueryModel queryModel)
         {
-            IQueryable<ProfessionalGroup> query = _context.ProfessionalGroups;
+            IQueryable<ProfessionalGroup> query = _context.ProfessionalGroups
+                .Include(pg => pg.ListCourse);
 
             if (!string.IsNullOrEmpty(queryModel.Name))
             {

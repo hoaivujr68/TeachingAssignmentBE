@@ -28,7 +28,7 @@ namespace TeachingAssignmentApp.Services
             _teacherProfessionalGroupRepository = teacherProfessionalGroupRepository;
         }
 
-        public async Task<Pagination<ProfessionalGroup>> GetAllAsync(ProfessionalGroupQueryModel queryModel)
+        public async Task<Pagination<ProfessionalGroupModel>> GetAllAsync(ProfessionalGroupQueryModel queryModel)
         {
             return await _professionalGroupRepository.GetAllAsync(queryModel);
         }
@@ -108,13 +108,8 @@ namespace TeachingAssignmentApp.Services
                                 Name = professionalGroupName,
                             };
 
-                            var existingGroup = await _professionalGroupRepository.GetByIdAsync(professionalGroup.Id);
-
-                            if (existingGroup == null)
-                            {
-                                professionalGroups.Add(professionalGroup);
-                                processedProfessionalGroups.Add(professionalGroupName);
-                            }
+                            professionalGroups.Add(professionalGroup);
+                            processedProfessionalGroups.Add(professionalGroupName);
                         }
                         else
                         {
@@ -128,7 +123,9 @@ namespace TeachingAssignmentApp.Services
                             {
                                 Id = Guid.NewGuid(),
                                 TeacherId = teacher.Id,
-                                ProfessionalGroupId = professionalGroup.Id
+                                Teacher = teacher,
+                                ProfessionalGroupId = professionalGroup.Id,
+                                ProfessionalGroup = professionalGroup
                             };
                             teacherProfessionalGroups.Add(teacherProfessionalGroup);
                         }

@@ -19,7 +19,7 @@ namespace TeachingAssignmentApp.Services
             _mapper = mapper;
         }
 
-        public async Task<Pagination<Teacher>> GetAllAsync(TeacherQueryModel queryModel)
+        public async Task<Pagination<TeacherModel>> GetAllAsync(TeacherQueryModel queryModel)
         {
             return await _teacherRepository.GetAllAsync(queryModel);
         }

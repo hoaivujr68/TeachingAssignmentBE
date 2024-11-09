@@ -20,13 +20,31 @@ namespace TeachingAssignmentApp.Repositories
             _context = context;
         }
 
-        public async Task<Pagination<Teacher>> GetAllAsync(TeacherQueryModel queryModel)
+        public async Task<Pagination<TeacherModel>> GetAllAsync(TeacherQueryModel queryModel)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
 
             IQueryable<Teacher> query = BuildQuery(queryModel);
-            var result = await query.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);
+            var teacherModelsQuery = query.Select(teacher => new TeacherModel
+            {
+                Id = teacher.Id,
+                Name = teacher.Name,
+                GdInstruct = teacher.GdInstruct,
+                GdTeaching = teacher.GdTeaching,
+                ProfessionalGroup= teacher.TeacherProfessionalGroups.Select(tpg => new ProfessionalGroupModel
+                {
+                    Id = tpg.ProfessionalGroup.Id,
+                    Name = tpg.ProfessionalGroup.Name,
+                    ListCourse = tpg.ProfessionalGroup.ListCourse.Where(c => c.TeacherId == teacher.Id).Select(c => new CourseModel
+                    {
+                        Id = c.Id,
+                        Name = c.Name
+                    }).ToList()
+
+                }).ToList()
+            });
+            var result = await teacherModelsQuery.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);
             return result;
         }
 
@@ -75,7 +93,9 @@ namespace TeachingAssignmentApp.Repositories
 
         private IQueryable<Teacher> BuildQuery(TeacherQueryModel queryModel)
         {
-            IQueryable<Teacher> query = _context.Teachers;
+            IQueryable<Teacher> query = _context.Teachers
+                .Include(t => t.ListCourse)
+                .Include(t => t.TeacherProfessionalGroups);
 
             if (!string.IsNullOrEmpty(queryModel.Name))
             {

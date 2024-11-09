@@ -5,7 +5,7 @@ namespace TeachingAssignmentApp.Services
 {
     public interface IProfessionalGroupService
     {
-        Task<Pagination<ProfessionalGroup>> GetAllAsync(ProfessionalGroupQueryModel queryModel);
+        Task<Pagination<ProfessionalGroupModel>> GetAllAsync(ProfessionalGroupQueryModel queryModel);
         Task<ProfessionalGroupModel> GetByIdAsync(Guid id);
         Task AddAsync(ProfessionalGroupModel professionalGroup);
         Task UpdateAsync(ProfessionalGroupModel professionalGroup);
