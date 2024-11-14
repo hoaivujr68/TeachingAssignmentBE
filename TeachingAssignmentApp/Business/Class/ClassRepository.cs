@@ -46,6 +46,18 @@ namespace TeachingAssignmentApp.Business.Class
         {
             return await _context.Classes.FirstOrDefaultAsync(t => t.Name == name);
         }
+        public async Task<Data.Class> GetByCodeAsync(string code)
+        {
+            return await _context.Classes.FirstOrDefaultAsync(t => t.Code == code);
+        }
+
+        public async Task<List<string>> GetByCourseNameAsync(string courseName)
+        {
+            return await _context.Classes
+                .Where(t => t.CourseName == courseName)
+                .Select(t => t.Code)
+                .ToListAsync();
+        }
 
         public async Task AddAsync(Data.Class classe)
         {

@@ -8,6 +8,8 @@ namespace TeachingAssignmentApp.Business.Class
         Task<Pagination<ClassModel>> GetAllAsync(ClassQueryModel queryModel);
         Task<Data.Class> GetByIdAsync(Guid id);
         Task<Data.Class> GetByNameAsync(string name);
+        Task<Data.Class> GetByCodeAsync(string code);
+        Task<List<string>> GetByCourseNameAsync(string courseName);
         Task AddAsync(Data.Class classe);
         Task UpdateAsync(Data.Class classe);
         Task DeleteAsync(Guid id);

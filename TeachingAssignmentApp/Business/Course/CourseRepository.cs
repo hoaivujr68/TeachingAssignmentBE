@@ -1,4 +1,5 @@
-﻿using TeachingAssignmentApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
 
@@ -31,6 +32,12 @@ namespace TeachingAssignmentApp.Business.Course
         public async Task<Data.Course> GetByIdAsync(Guid id)
         {
             return await _context.Courses.FindAsync(id);
+        }
+        public async Task<IEnumerable<Data.Course>> GetByTeacherIdAsync(Guid teacherId)
+        {
+            return await _context.Courses
+                .Where(course => course.TeacherId == teacherId)
+                .ToListAsync();
         }
 
         public async Task AddAsync(Data.Course course)

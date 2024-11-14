@@ -14,6 +14,8 @@ namespace TeachingAssignmentApp.Data
         public DbSet<TeacherProfessionalGroup> TeacherProfessionalGroups { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Class> Classes { get; set; }
+        public DbSet<Aspiration> Aspirations { get; set; }
+        public DbSet<TeachingAssignment> TeachingAssignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

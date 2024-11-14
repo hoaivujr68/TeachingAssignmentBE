@@ -29,6 +29,7 @@ namespace TeachingAssignmentApp.Business.Teacher
             var teacherModelsQuery = query.Select(teacher => new TeacherModel
             {
                 Id = teacher.Id,
+                Code = teacher.Code,
                 Name = teacher.Name,
                 GdInstruct = teacher.GdInstruct,
                 GdTeaching = teacher.GdTeaching,
@@ -51,6 +52,11 @@ namespace TeachingAssignmentApp.Business.Teacher
         public async Task<Data.Teacher> GetByIdAsync(Guid id)
         {
             return await _context.Teachers.FindAsync(id);
+        }
+
+        public async Task<Data.Teacher> GetByCodeAsync(string code)
+        {
+            return await _context.Teachers.FirstOrDefaultAsync(t => t.Code == code);
         }
 
         public async Task<Data.Teacher> GetByNameAsync(string name)
@@ -100,6 +106,11 @@ namespace TeachingAssignmentApp.Business.Teacher
             if (!string.IsNullOrEmpty(queryModel.Name))
             {
                 query = query.Where(x => x.Name == queryModel.Name);
+            }
+
+            if (!string.IsNullOrEmpty(queryModel.Code))
+            {
+                query = query.Where(x => x.Code == queryModel.Code);
             }
 
             return query;

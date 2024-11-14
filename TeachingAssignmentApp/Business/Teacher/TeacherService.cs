@@ -66,6 +66,9 @@ namespace TeachingAssignmentApp.Business.Teacher
                     int rowCount = worksheet.Dimension.Rows;
 
                     HashSet<string> processedTeachers = new();
+                    // Khởi tạo biến đếm bên ngoài vòng lặp
+                    var teacherCounter = 1;
+
                     for (int row = 2; row <= rowCount; row++)
                     {
                         string teacherName = worksheet.Cells[row, 2].Text.Trim();
@@ -83,6 +86,7 @@ namespace TeachingAssignmentApp.Business.Teacher
                             var teacher = new Data.Teacher
                             {
                                 Id = Guid.NewGuid(),
+                                Code = $"GV{teacherCounter:D3}",
                                 Name = teacherName,
                                 GdTeaching = gdTeaching,
                                 GdInstruct = Math.Round(gdTeaching * 0.43 / 0.57, 2)
@@ -90,6 +94,7 @@ namespace TeachingAssignmentApp.Business.Teacher
 
                             teachers.Add(teacher);
                             processedTeachers.Add(teacherName);
+                            teacherCounter++;
                         }
                     }
                 }

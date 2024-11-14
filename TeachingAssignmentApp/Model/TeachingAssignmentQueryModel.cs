@@ -2,7 +2,7 @@
 
 namespace TeachingAssignmentApp.Model
 {
-    public class TeacherQueryModel
+    public class TeachingAssignmentQueryModel
     {
         public string Code { get; set; }
         public string Name { get; set; }

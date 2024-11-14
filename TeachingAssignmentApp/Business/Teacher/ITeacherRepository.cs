@@ -7,6 +7,7 @@ namespace TeachingAssignmentApp.Business.Teacher
     {
         Task<Pagination<TeacherModel>> GetAllAsync(TeacherQueryModel queryModel);
         Task<Data.Teacher> GetByIdAsync(Guid id);
+        Task<Data.Teacher> GetByCodeAsync(string code);
         Task<Data.Teacher> GetByNameAsync(string name);
         Task AddAsync(Data.Teacher teacher);
         Task UpdateAsync(Data.Teacher teacher);

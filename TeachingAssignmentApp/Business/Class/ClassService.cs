@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using OfficeOpenXml;
 using TeachingAssignmentApp.Business.Project;
+using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.Class
@@ -72,70 +73,73 @@ namespace TeachingAssignmentApp.Business.Class
 
                     ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
                     int rowCount = worksheet.Dimension.Rows;
+                    HashSet<string> processedCourses = new();
 
                     for (int row = 2; row <= rowCount; row++)
                     {
-                        string classeName = worksheet.Cells[row, 5].Text.Trim();
+                        string classeId = worksheet.Cells[row, 3].Text.Trim();
 
-                        if (string.IsNullOrEmpty(classeName))
+                        if (string.IsNullOrEmpty(classeId))
                         {
                             continue;
                         }
 
                         string timeTable = worksheet.Cells[row, 13].Text.Trim();
-
-                        var classe = new Data.Class
+                        if (!processedCourses.Contains(classeId))
                         {
-                            Id = Guid.NewGuid(),
-                            Name = classeName,
-                            Code = worksheet.Cells[row, 3].Text.Trim(),
-                            Type = worksheet.Cells[row, 12].Text.Trim(),
-                            CourseName = worksheet.Cells[row, 4].Text.Trim(),
-                            GroupName = worksheet.Cells[row, 8].Text.Trim(),
-                            MaxEnrol = string.IsNullOrEmpty(worksheet.Cells[row, 11].Text.Trim()) ? 0 : int.Parse(worksheet.Cells[row, 11].Text.Trim()),
-                            TimeTable = timeTable,
-                            GdTeaching = string.IsNullOrEmpty(worksheet.Cells[row, 37].Text.Trim()) ? 0.0 : double.Parse(worksheet.Cells[row, 37].Text.Trim()),
-                            TimeTableDetail = new List<TimeTableModel>()
-                        };
-
-
-                        if (timeTable != "" && timeTable != null)
-                        {
-                            var schedules = timeTable.Split(new[] { "Sáng", "Chiều" }, StringSplitOptions.RemoveEmptyEntries);
-
-                            foreach (var schedule in schedules)
+                            var classe = new Data.Class
                             {
-                                string seasion = timeTable.Contains("Sáng" + schedule) ? "Sáng" : "Chiều";
-                                var parts = schedule.Split(',');
+                                Id = Guid.NewGuid(),
+                                Name = worksheet.Cells[row, 5].Text.Trim(),
+                                Code = worksheet.Cells[row, 3].Text.Trim(),
+                                Type = worksheet.Cells[row, 12].Text.Trim(),
+                                CourseName = worksheet.Cells[row, 4].Text.Trim(),
+                                GroupName = worksheet.Cells[row, 8].Text.Trim(),
+                                MaxEnrol = string.IsNullOrEmpty(worksheet.Cells[row, 11].Text.Trim()) ? 0 : int.Parse(worksheet.Cells[row, 11].Text.Trim()),
+                                TimeTable = timeTable,
+                                GdTeaching = string.IsNullOrEmpty(worksheet.Cells[row, 37].Text.Trim()) ? 0.0 : double.Parse(worksheet.Cells[row, 37].Text.Trim()),
+                                TimeTableDetail = new List<TimeTableModel>()
+                            };
 
-                                string day = parts[0].Split('T')[1].Trim().Replace(":", "");
-                                string classPeriod = parts[0].Split(' ')[3].Trim();
-                                string room = parts[1].Split(':')[1].Trim();
-                                string week = parts[2].Split(':')[1].Trim();
-                                for (int i = 3; i < parts.Length; i++)
+
+                            if (timeTable != "" && timeTable != null)
+                            {
+                                var schedules = timeTable.Split(new[] { "Sáng", "Chiều" }, StringSplitOptions.RemoveEmptyEntries);
+
+                                foreach (var schedule in schedules)
                                 {
-                                    week += ", " + parts[i].Trim();
+                                    string seasion = timeTable.Contains("Sáng" + schedule) ? "Sáng" : "Chiều";
+                                    var parts = schedule.Split(',');
+
+                                    string day = parts[0].Split('T')[1].Trim().Replace(":", "");
+                                    string classPeriod = parts[0].Split(' ')[3].Trim();
+                                    string room = parts[1].Split(':')[1].Trim();
+                                    string week = parts[2].Split(':')[1].Trim();
+                                    for (int i = 3; i < parts.Length; i++)
+                                    {
+                                        week += ", " + parts[i].Trim();
+                                    }
+
+                                    var timeTableModel = new TimeTableModel
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Day = day,
+                                        Seasion = seasion,
+                                        ClassPeriod = classPeriod,
+                                        Room = room,
+                                        Week = week
+                                    };
+
+                                    classe.TimeTableDetail.Add(timeTableModel);
                                 }
-
-                                var timeTableModel = new TimeTableModel
-                                {
-                                    Id = Guid.NewGuid(),
-                                    Day = day,
-                                    Seasion = seasion,
-                                    ClassPeriod = classPeriod,
-                                    Room = room,
-                                    Week = week
-                                };
-
-                                classe.TimeTableDetail.Add(timeTableModel);
                             }
+                            classes.Add(classe);
+                            processedCourses.Add(classeId);
                         }
-
-                        classes.Add(classe);
                     }
                 }
             }
-            
+
             await _classeRepository.AddRangeAsync(classes);
             return true;
         }

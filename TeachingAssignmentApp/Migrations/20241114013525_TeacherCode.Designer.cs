@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeachingAssignmentApp.Data;
 
@@ -11,9 +12,10 @@ using TeachingAssignmentApp.Data;
 namespace TeachingAssignmentApp.Migrations
 {
     [DbContext(typeof(TeachingAssignmentDbContext))]
-    partial class TeachingAssignmentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241114013525_TeacherCode")]
+    partial class TeacherCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,60 +155,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("TeachingAssignmentApp.Data.Aspiration", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Aspiration1")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Aspiration2")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Aspiration3")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClassName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DesireAccept")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GroupName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StatusCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StudentName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Topic")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Aspiration");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.Class", b =>
@@ -364,51 +312,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.ToTable("TeacherProfessionalGroup");
                 });
 
-            modelBuilder.Entity("TeachingAssignmentApp.Data.TeachingAssignment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CourseName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("GdTeaching")
-                        .HasColumnType("float");
-
-                    b.Property<string>("GroupName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MaxEnrol")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TeacherCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TimeTable")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TeachingAssignment");
-                });
-
             modelBuilder.Entity("TeachingAssignmentApp.Data.User", b =>
                 {
                     b.Property<string>("Id")
@@ -499,9 +402,6 @@ namespace TeachingAssignmentApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("TeachingAssignmentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Week")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -509,8 +409,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClassId");
-
-                    b.HasIndex("TeachingAssignmentId");
 
                     b.ToTable("TimeTableModel");
                 });
@@ -607,10 +505,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.HasOne("TeachingAssignmentApp.Data.Class", null)
                         .WithMany("TimeTableDetail")
                         .HasForeignKey("ClassId");
-
-                    b.HasOne("TeachingAssignmentApp.Data.TeachingAssignment", null)
-                        .WithMany("TimeTableDetail")
-                        .HasForeignKey("TeachingAssignmentId");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.Class", b =>
@@ -630,11 +524,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.Navigation("ListCourse");
 
                     b.Navigation("TeacherProfessionalGroups");
-                });
-
-            modelBuilder.Entity("TeachingAssignmentApp.Data.TeachingAssignment", b =>
-                {
-                    b.Navigation("TimeTableDetail");
                 });
 #pragma warning restore 612, 618
         }
