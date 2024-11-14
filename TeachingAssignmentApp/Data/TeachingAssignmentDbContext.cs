@@ -12,6 +12,8 @@ namespace TeachingAssignmentApp.Data
         public DbSet<ProfessionalGroup> ProfessionalGroups { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<TeacherProfessionalGroup> TeacherProfessionalGroups { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<Class> Classes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using TeachingAssignmentApp.Business.Teacher;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
-using TeachingAssignmentApp.Services;
 
 namespace TeachingAssignmentApp.Controllers
 {

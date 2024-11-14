@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeachingAssignmentApp.Data;
 
@@ -11,9 +12,10 @@ using TeachingAssignmentApp.Data;
 namespace TeachingAssignmentApp.Migrations
 {
     [DbContext(typeof(TeachingAssignmentDbContext))]
-    partial class TeachingAssignmentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241110082700_Table_Project")]
+    partial class Table_Project
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,47 +155,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("TeachingAssignmentApp.Data.Class", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CourseName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("GdTeaching")
-                        .HasColumnType("float");
-
-                    b.Property<string>("GroupName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MaxEnrol")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TimeTable")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.Course", b =>
@@ -372,42 +333,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("TeachingAssignmentApp.Model.TimeTableModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ClassId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ClassPeriod")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Day")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Room")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Seasion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Week")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassId");
-
-                    b.ToTable("TimeTableModel");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -493,18 +418,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.Navigation("ProfessionalGroup");
 
                     b.Navigation("Teacher");
-                });
-
-            modelBuilder.Entity("TeachingAssignmentApp.Model.TimeTableModel", b =>
-                {
-                    b.HasOne("TeachingAssignmentApp.Data.Class", null)
-                        .WithMany("TimeTableDetail")
-                        .HasForeignKey("ClassId");
-                });
-
-            modelBuilder.Entity("TeachingAssignmentApp.Data.Class", b =>
-                {
-                    b.Navigation("TimeTableDetail");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.ProfessionalGroup", b =>

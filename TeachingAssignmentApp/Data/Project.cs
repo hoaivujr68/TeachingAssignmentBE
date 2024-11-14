@@ -3,16 +3,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TeachingAssignmentApp.Data
 {
-    [Table("Teacher")]
-    public class Teacher
+    [Table("Project")]
+    public class Project
     {
         [Key]
         public Guid Id { get; set; }
         public string? Code { get; set; }
         public string? Name { get; set; }
-        public List<TeacherProfessionalGroup>? TeacherProfessionalGroups { get; set; }
-        public List<Course>? ListCourse { get; set; }
-        public double? GdTeaching { get; set; }
+        public string? Type { get; set; }
+        public string? CourseName { get; set; }
+        public string? StudenId { get; set; }
+        public string? StudentName { get; set; }
+        public string? GroupName { get; set; }
         public double? GdInstruct { get; set; }
+
     }
 }
