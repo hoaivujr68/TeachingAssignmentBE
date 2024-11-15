@@ -5,7 +5,7 @@ namespace TeachingAssignmentApp.Business.Course
 {
     public interface ICourseService
     {
-        Task<Pagination<Data.Course>> GetAllAsync(CourseQueryModel queryModel);
+        Task<Pagination<Data.Course>> GetAllAsync(QueryModel queryModel);
         Task<CourseModel> GetByIdAsync(Guid id);
         Task AddAsync(CourseModel course);
         Task UpdateAsync(CourseModel course);

@@ -1,15 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace TeachingAssignmentApp.Data
+﻿namespace TeachingAssignmentApp.Business.Assignment.Model
 {
-    [Table("Aspiration")]
-    public class Aspiration
+    public class AspirationInputModel
     {
-        [Key]
-        public Guid Id { get; set; }
         public string? TeacherCode { get; set; }
-        public string? TeacherName { get; set; }
         public string? StudentId { get; set; }
         public string? StudentName { get; set; }
         public string? Topic { get; set; }
@@ -18,8 +11,12 @@ namespace TeachingAssignmentApp.Data
         public string? Status { get; set; }
         public string? DesireAccept { get; set; }
         public string? Aspiration1 { get; set; }
+        public string? Aspiration1Code { get; set; }
         public string? Aspiration2 { get; set; }
+        public string? Aspiration2Code { get; set; }
         public string? Aspiration3 { get; set; }
+        public string? Aspiration3Code { get; set; }
+        public double? GdInstruct { get; set; }
         public int? StatusCode { get; set; }
     }
 }

@@ -5,7 +5,7 @@ namespace TeachingAssignmentApp.Business.Course
 {
     public interface ICourseRepository
     {
-        Task<Pagination<Data.Course>> GetAllAsync(CourseQueryModel queryModel);
+        Task<Pagination<Data.Course>> GetAllAsync(QueryModel queryModel);
         Task<Data.Course> GetByIdAsync(Guid id);
         Task<IEnumerable<Data.Course>> GetByTeacherIdAsync(Guid teacherId);
         Task AddAsync(Data.Course course);

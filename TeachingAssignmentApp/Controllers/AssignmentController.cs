@@ -32,14 +32,40 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+        [HttpGet("aspirations")]
+        [ProducesResponseType(typeof(ResponsePagination<AspirationInputModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllAspirationInfo()
+        {
+            var result = await _assignmentService.GetAllAspirationInfo();
+            return Ok(result);
+        }
 
-        [HttpPost("")]
+        [HttpPost("teaching")]
         [ProducesResponseType(typeof(ResponsePagination<SolutionModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> TeachingAssignment()
         {
             try
             {
                 var result = await _assignmentService.TeachingAssignment();
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Success = false, Message = ex.Message });
+            }
+        }
+
+        [HttpPost("aspirating")]
+        [ProducesResponseType(typeof(ResponsePagination<SolutionProjectModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ProjectAssignment()
+        {
+            try
+            {
+                var result = await _assignmentService.ProjectAssignment();
                 return Ok(result);
             }
             catch (ArgumentException ex)

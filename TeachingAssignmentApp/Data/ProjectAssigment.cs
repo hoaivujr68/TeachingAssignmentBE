@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Data
 {
-    [Table("Aspiration")]
-    public class Aspiration
+    [Table("ProjectAssigment")]
+    public class ProjectAssigment
     {
         [Key]
         public Guid Id { get; set; }
@@ -20,6 +21,7 @@ namespace TeachingAssignmentApp.Data
         public string? Aspiration1 { get; set; }
         public string? Aspiration2 { get; set; }
         public string? Aspiration3 { get; set; }
+        public double? GdInstruct { get; set; }
         public int? StatusCode { get; set; }
     }
 }

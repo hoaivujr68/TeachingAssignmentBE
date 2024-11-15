@@ -11,6 +11,7 @@ using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Business.Course;
 using TeachingAssignmentApp.Business.ProfessionalGroup;
 using TeachingAssignmentApp.Business.Project;
+using TeachingAssignmentApp.Business.ProjectAssigment;
 using TeachingAssignmentApp.Business.Teacher;
 using TeachingAssignmentApp.Business.TeacherProfessionalGroup;
 using TeachingAssignmentApp.Business.TeachingAssignment;
@@ -81,6 +82,7 @@ builder.Services.AddScoped<IAspirationRepository, AspirationRepository>();
 builder.Services.AddScoped<IAspirationService, AspirationService>();
 builder.Services.AddScoped<IAssignmentService, AssignmentService>();
 builder.Services.AddScoped<ITeachingAssignmentRepository, TeachingAssignmentRepository>();
+builder.Services.AddScoped<IProjectAssignmentRepository, ProjectAssignmentRepository>();
 
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);

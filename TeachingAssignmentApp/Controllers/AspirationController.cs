@@ -24,7 +24,7 @@ namespace TeachingAssignmentApp.Controllers
             [FromQuery] int size = 20,
             [FromQuery] string filter = "{ }")
         {
-            var filterObject = JsonSerializer.Deserialize<AspirationQueryModel>(filter);
+            var filterObject = JsonSerializer.Deserialize<QueryModel>(filter);
             filterObject.PageSize = size;
             filterObject.CurrentPage = page;
             var result = await _aspirationService.GetAllAsync(filterObject);

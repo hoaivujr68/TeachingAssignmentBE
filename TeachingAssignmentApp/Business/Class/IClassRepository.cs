@@ -5,7 +5,7 @@ namespace TeachingAssignmentApp.Business.Class
 {
     public interface IClassRepository
     {
-        Task<Pagination<ClassModel>> GetAllAsync(ClassQueryModel queryModel);
+        Task<Pagination<ClassModel>> GetAllAsync(QueryModel queryModel);
         Task<Data.Class> GetByIdAsync(Guid id);
         Task<Data.Class> GetByNameAsync(string name);
         Task<Data.Class> GetByCodeAsync(string code);

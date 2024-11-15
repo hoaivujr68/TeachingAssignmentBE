@@ -6,6 +6,8 @@ namespace TeachingAssignmentApp.Business.Assignment
     {
         Task<List<TeacherInputModel>> GetAllTeacherInfo();
         Task<List<ClassInputModel>> GetAllClassInfo();
+        Task<List<AspirationInputModel>> GetAllAspirationInfo();
         Task<SolutionModel> TeachingAssignment();
+        Task<SolutionProjectModel> ProjectAssignment();
     }
 }

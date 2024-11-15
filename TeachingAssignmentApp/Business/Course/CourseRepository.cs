@@ -19,7 +19,7 @@ namespace TeachingAssignmentApp.Business.Course
             _context = context;
         }
 
-        public async Task<Pagination<Data.Course>> GetAllAsync(CourseQueryModel queryModel)
+        public async Task<Pagination<Data.Course>> GetAllAsync(QueryModel queryModel)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
@@ -73,7 +73,7 @@ namespace TeachingAssignmentApp.Business.Course
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Data.Course> BuildQuery(CourseQueryModel queryModel)
+        private IQueryable<Data.Course> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.Course> query = _context.Courses;
 

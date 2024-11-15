@@ -14,7 +14,7 @@ namespace TeachingAssignmentApp.Business.Project
             _context = context;
         }
 
-        public async Task<Pagination<ProjectModel>> GetAllAsync(ProjectQueryModel queryModel)
+        public async Task<Pagination<ProjectModel>> GetAllAsync(QueryModel queryModel)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
@@ -45,6 +45,16 @@ namespace TeachingAssignmentApp.Business.Project
         public async Task<Data.Project> GetByNameAsync(string name)
         {
             return await _context.Projects.FirstOrDefaultAsync(t => t.Name == name);
+        }
+
+        public async Task<Data.Project> GetByStudentIdAsync(string studentId)
+        {
+            return await _context.Projects.FirstOrDefaultAsync(a => a.StudenId == studentId);
+        }
+
+        public async Task<Data.Project> GetByCourseNameAsync(string courseName)
+        {
+            return await _context.Projects.FirstOrDefaultAsync(t => t.CourseName == courseName);
         }
 
         public async Task AddAsync(Data.Project project)
@@ -80,7 +90,7 @@ namespace TeachingAssignmentApp.Business.Project
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Data.Project> BuildQuery(ProjectQueryModel queryModel)
+        private IQueryable<Data.Project> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.Project> query = _context.Projects;
                 //.Include(t => t.ListCourse)

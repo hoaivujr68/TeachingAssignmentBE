@@ -2,7 +2,7 @@
 
 namespace TeachingAssignmentApp.Model
 {
-    public class CourseQueryModel
+    public class ProjectAssigmentQueryModel
     {
         public string Name { get; set; }
         [Range(1, int.MaxValue)]

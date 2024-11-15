@@ -15,7 +15,7 @@ namespace TeachingAssignmentApp.Business.Teacher
             _mapper = mapper;
         }
 
-        public async Task<Pagination<TeacherModel>> GetAllAsync(TeacherQueryModel queryModel)
+        public async Task<Pagination<TeacherModel>> GetAllAsync(QueryModel queryModel)
         {
             return await _teacherRepository.GetAllAsync(queryModel);
         }

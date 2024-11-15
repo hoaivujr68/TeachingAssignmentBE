@@ -19,7 +19,7 @@ namespace TeachingAssignmentApp.Business.ProfessionalGroup
             _context = context;
         }
 
-        public async Task<Pagination<ProfessionalGroupModel>> GetAllAsync(ProfessionalGroupQueryModel queryModel)
+        public async Task<Pagination<ProfessionalGroupModel>> GetAllAsync(QueryModel queryModel)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
@@ -78,7 +78,7 @@ namespace TeachingAssignmentApp.Business.ProfessionalGroup
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Data.ProfessionalGroup> BuildQuery(ProfessionalGroupQueryModel queryModel)
+        private IQueryable<Data.ProfessionalGroup> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.ProfessionalGroup> query = _context.ProfessionalGroups
                 .Include(pg => pg.ListCourse);

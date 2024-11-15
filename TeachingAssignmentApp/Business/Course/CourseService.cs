@@ -14,7 +14,7 @@ namespace TeachingAssignmentApp.Business.Course
             _mapper = mapper;
         }
 
-        public async Task<Pagination<Data.Course>> GetAllAsync(CourseQueryModel queryModel)
+        public async Task<Pagination<Data.Course>> GetAllAsync(QueryModel queryModel)
         {
             return await _courseRepository.GetAllAsync(queryModel);
         }

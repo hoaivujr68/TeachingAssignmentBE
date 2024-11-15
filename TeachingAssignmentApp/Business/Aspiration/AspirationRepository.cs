@@ -14,7 +14,7 @@ namespace TeachingAssignmentApp.Business.Aspiration
             _context = context;
         }
 
-        public async Task<Pagination<AspirationModel>> GetAllAsync(AspirationQueryModel queryModel)
+        public async Task<Pagination<AspirationModel>> GetAllAsync(QueryModel queryModel)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
@@ -23,6 +23,8 @@ namespace TeachingAssignmentApp.Business.Aspiration
             var aspirationModelsQuery = query.Select(aspiration => new AspirationModel
             {
                 Id = aspiration.Id,
+                TeacherCode = aspiration.TeacherCode,
+                TeacherName = aspiration.TeacherName,
                 StudentId = aspiration.StudentId,
                 StudentName = aspiration.StudentName,
                 Topic = aspiration.Topic,
@@ -43,6 +45,11 @@ namespace TeachingAssignmentApp.Business.Aspiration
         public async Task<Data.Aspiration> GetByIdAsync(Guid id)
         {
             return await _context.Aspirations.FindAsync(id);
+        }
+
+        public async Task<Data.Aspiration> GetByStudentIdAsync(string studentId)
+        {
+            return await _context.Aspirations.FirstOrDefaultAsync(a => a.StudentId == studentId);
         }
 
         public async Task AddAsync(Data.Aspiration aspiration)
@@ -78,7 +85,7 @@ namespace TeachingAssignmentApp.Business.Aspiration
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Data.Aspiration> BuildQuery(AspirationQueryModel queryModel)
+        private IQueryable<Data.Aspiration> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.Aspiration> query = _context.Aspirations;
                 //.Include(t => t.ListCourse)

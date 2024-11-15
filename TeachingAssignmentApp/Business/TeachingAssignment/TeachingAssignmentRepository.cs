@@ -12,12 +12,13 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
         private readonly TeachingAssignmentDbContext _context;
         private readonly IClassRepository _classRepository;
 
-        public TeachingAssignmentRepository(TeachingAssignmentDbContext context)
+        public TeachingAssignmentRepository(TeachingAssignmentDbContext context, IClassRepository classRepository)
         {
             _context = context;
+            _classRepository = classRepository;
         }
 
-        public async Task<Pagination<Data.TeachingAssignment>> GetAllAsync(TeachingAssignmentQueryModel queryModel)
+        public async Task<Pagination<Data.TeachingAssignment>> GetAllAsync(QueryModel queryModel)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
@@ -28,9 +29,15 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
             return result;
         }
 
-        public async Task<Pagination<ClassModel>> GetClassNotAssignmentAsync(ClassQueryModel queryModel)
+        public async Task<Pagination<ClassModel>> GetClassNotAssignmentAsync(QueryModel queryModel)
         {
-            var allClasses = await _classRepository.GetAllAsync(queryModel);
+            var queryClassModel = new QueryModel
+            {
+                CurrentPage = 1,
+                PageSize = 200
+            };
+
+            var allClasses = await _classRepository.GetAllAsync(queryClassModel);
 
             var assignedClassCodes = await _context.TeachingAssignments
                                                     .Select(t => t.Code)
@@ -43,8 +50,8 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
             var result = new Pagination<ClassModel>
             {
                 Content = classesNotAssigned,
-                CurrentPage = 1,
-                PageSize = 300,
+                CurrentPage = queryModel.CurrentPage ?? 1,
+                PageSize = queryModel.PageSize ?? 20,
                 TotalRecords = classesNotAssigned.Count
             };
 
@@ -90,7 +97,7 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Data.TeachingAssignment> BuildQuery(TeachingAssignmentQueryModel queryModel)
+        private IQueryable<Data.TeachingAssignment> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.TeachingAssignment> query = _context.TeachingAssignments;
                 //.Include(t => t.ListCourse)

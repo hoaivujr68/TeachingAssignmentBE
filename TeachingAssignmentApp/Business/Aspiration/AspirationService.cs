@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using OfficeOpenXml;
 using TeachingAssignmentApp.Business.Aspiration;
+using TeachingAssignmentApp.Business.Teacher;
 using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.Aspiration
@@ -8,15 +9,17 @@ namespace TeachingAssignmentApp.Business.Aspiration
     public class AspirationService : IAspirationService
     {
         private readonly IAspirationRepository _aspirationRepository;
+        private readonly ITeacherRepository _teacherRepository;
         private readonly IMapper _mapper;
 
-        public AspirationService(IAspirationRepository aspirationRepository, IMapper mapper)
+        public AspirationService(IAspirationRepository aspirationRepository, IMapper mapper, ITeacherRepository teacherRepository)
         {
             _aspirationRepository = aspirationRepository;
             _mapper = mapper;
+            _teacherRepository = teacherRepository;
         }
 
-        public async Task<Pagination<AspirationModel>> GetAllAsync(AspirationQueryModel queryModel)
+        public async Task<Pagination<AspirationModel>> GetAllAsync(QueryModel queryModel)
         {
             return await _aspirationRepository.GetAllAsync(queryModel);
         }
@@ -76,11 +79,40 @@ namespace TeachingAssignmentApp.Business.Aspiration
                         {
                             continue;
                         }
+                        var teacher1 = await _teacherRepository.GetByNameAsync(worksheet.Cells[row, 17].Text.Trim());
+                        if (teacher1 == null)
+                        {
+                            continue;
+                        }
+                        var teacher2 = await _teacherRepository.GetByNameAsync(worksheet.Cells[row, 18].Text.Trim());
+                        if (teacher2 == null)
+                        {
+                            continue;
+                        }
+                        var teacher3 = await _teacherRepository.GetByNameAsync(worksheet.Cells[row, 19].Text.Trim());
+                        if (teacher3 == null)
+                        {
+                            continue;
+                        }
 
+                        var teacherName = desireAccept == "Chờ xác nhận" ? null : worksheet.Cells[row, 17].Text.Trim();
+                        var teacherCode = string.IsNullOrEmpty(teacherName) ? null : "";
 
+                        if (!string.IsNullOrEmpty(teacherName))
+                        {
+                            var teacher = await _teacherRepository.GetByNameAsync(teacherName);
+                            if (teacher == null)
+                            {
+                                continue;
+                            }
+                            teacherName = teacher?.Name;
+                            teacherCode = teacher?.Code;
+                        }
                         var aspiration = new Data.Aspiration
                         {
                             Id = Guid.NewGuid(),
+                            TeacherCode = teacherCode,
+                            TeacherName = teacherName,
                             StudentId = worksheet.Cells[row, 2].Text.Trim(),
                             StudentName = studentName,
                             Topic = worksheet.Cells[row, 7].Text.Trim(),

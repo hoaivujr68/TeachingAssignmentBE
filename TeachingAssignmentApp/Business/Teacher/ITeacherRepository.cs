@@ -5,7 +5,7 @@ namespace TeachingAssignmentApp.Business.Teacher
 {
     public interface ITeacherRepository
     {
-        Task<Pagination<TeacherModel>> GetAllAsync(TeacherQueryModel queryModel);
+        Task<Pagination<TeacherModel>> GetAllAsync(QueryModel queryModel);
         Task<Data.Teacher> GetByIdAsync(Guid id);
         Task<Data.Teacher> GetByCodeAsync(string code);
         Task<Data.Teacher> GetByNameAsync(string name);

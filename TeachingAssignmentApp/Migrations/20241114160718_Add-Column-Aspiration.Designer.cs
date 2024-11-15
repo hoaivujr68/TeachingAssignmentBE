@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeachingAssignmentApp.Data;
 
@@ -11,9 +12,10 @@ using TeachingAssignmentApp.Data;
 namespace TeachingAssignmentApp.Migrations
 {
     [DbContext(typeof(TeachingAssignmentDbContext))]
-    partial class TeachingAssignmentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241114160718_Add-Column-Aspiration")]
+    partial class AddColumnAspiration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,42 +164,54 @@ namespace TeachingAssignmentApp.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Aspiration1")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Aspiration2")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Aspiration3")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClassName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DesireAccept")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GroupName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StatusCode")
+                    b.Property<int>("StatusCode")
                         .HasColumnType("int");
 
                     b.Property<string>("StudentId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StudentName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TeacherCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TeacherName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Topic")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -325,19 +339,10 @@ namespace TeachingAssignmentApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Aspiration1")
+                    b.Property<string>("Code")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Aspiration2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Aspiration3")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClassName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DesireAccept")
+                    b.Property<string>("CourseName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double?>("GdInstruct")
@@ -346,25 +351,20 @@ namespace TeachingAssignmentApp.Migrations
                     b.Property<string>("GroupName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StatusCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StudentId")
+                    b.Property<string>("StudenId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StudentName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TeacherCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TeacherName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Topic")
+                    b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

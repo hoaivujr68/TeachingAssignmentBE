@@ -19,7 +19,7 @@ namespace TeachingAssignmentApp.Business.Class
             _projectService = projectService;
         }
 
-        public async Task<Pagination<ClassModel>> GetAllAsync(ClassQueryModel queryModel)
+        public async Task<Pagination<ClassModel>> GetAllAsync(QueryModel queryModel)
         {
             return await _classeRepository.GetAllAsync(queryModel);
         }

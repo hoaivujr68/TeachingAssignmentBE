@@ -16,7 +16,7 @@ namespace TeachingAssignmentApp.Business.Project
             _mapper = mapper;
         }
 
-        public async Task<Pagination<ProjectModel>> GetAllAsync(ProjectQueryModel queryModel)
+        public async Task<Pagination<ProjectModel>> GetAllAsync(QueryModel queryModel)
         {
             return await _projectRepository.GetAllAsync(queryModel);
         }
@@ -51,7 +51,7 @@ namespace TeachingAssignmentApp.Business.Project
 
         public async Task<double> GetTotalGdInstruct()
         {
-            var query = new ProjectQueryModel();
+            var query = new QueryModel();
             query.CurrentPage = 1;
             query.PageSize = 1500;
             var projects = await _projectRepository.GetAllAsync(query);

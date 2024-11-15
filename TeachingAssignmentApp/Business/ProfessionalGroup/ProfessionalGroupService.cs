@@ -29,7 +29,7 @@ namespace TeachingAssignmentApp.Business.ProfessionalGroup
             _teacherProfessionalGroupRepository = teacherProfessionalGroupRepository;
         }
 
-        public async Task<Pagination<ProfessionalGroupModel>> GetAllAsync(ProfessionalGroupQueryModel queryModel)
+        public async Task<Pagination<ProfessionalGroupModel>> GetAllAsync(QueryModel queryModel)
         {
             return await _professionalGroupRepository.GetAllAsync(queryModel);
         }

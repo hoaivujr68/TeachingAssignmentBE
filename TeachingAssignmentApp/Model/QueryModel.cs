@@ -2,8 +2,10 @@
 
 namespace TeachingAssignmentApp.Model
 {
-    public class AspirationQueryModel
+    public class QueryModel
     {
+        public string Code { get; set; }
+        public string Name { get; set; }
         [Range(1, int.MaxValue)]
         public int? CurrentPage { get; set; } = 1;
 

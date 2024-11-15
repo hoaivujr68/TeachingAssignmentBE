@@ -20,7 +20,7 @@ namespace TeachingAssignmentApp.Business.Teacher
             _context = context;
         }
 
-        public async Task<Pagination<TeacherModel>> GetAllAsync(TeacherQueryModel queryModel)
+        public async Task<Pagination<TeacherModel>> GetAllAsync(QueryModel queryModel)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
@@ -97,7 +97,7 @@ namespace TeachingAssignmentApp.Business.Teacher
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Data.Teacher> BuildQuery(TeacherQueryModel queryModel)
+        private IQueryable<Data.Teacher> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.Teacher> query = _context.Teachers
                 .Include(t => t.ListCourse)
