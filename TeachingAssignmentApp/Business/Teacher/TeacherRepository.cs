@@ -1,19 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
 using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
+using LinqKit;
 
 namespace TeachingAssignmentApp.Business.Teacher
 {
     public class TeacherRepository : ITeacherRepository
     {
         private readonly TeachingAssignmentDbContext _context;
-
-        protected string TeacherTableName
-        {
-            get { return _context.Model.FindEntityType(typeof(Data.Teacher)).GetTableName(); }
-        }
 
         public TeacherRepository(TeachingAssignmentDbContext context)
         {
@@ -93,7 +88,19 @@ namespace TeachingAssignmentApp.Business.Teacher
 
         public async Task AddRangeAsync(IEnumerable<Data.Teacher> teachers)
         {
+            var existingCourses = await _context.Courses.ToListAsync();
+            _context.Courses.RemoveRange(existingCourses);
+            var existingTeacherProfessionalGroups = await _context.TeacherProfessionalGroups.ToListAsync();
+            _context.TeacherProfessionalGroups.RemoveRange(existingTeacherProfessionalGroups);
+            var existingTeachers = await _context.Teachers.ToListAsync();
+            _context.Teachers.RemoveRange(existingTeachers);
             await _context.Teachers.AddRangeAsync(teachers);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateRangeAsync(IEnumerable<Data.Teacher> teachers)
+        {
+            _context.Teachers.UpdateRange(teachers);
             await _context.SaveChangesAsync();
         }
 
@@ -112,18 +119,21 @@ namespace TeachingAssignmentApp.Business.Teacher
             {
                 query = query.Where(x => x.Code == queryModel.Code);
             }
+            var predicate = PredicateBuilder.New<Data.Teacher>();
+            if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
+            {
+                foreach (var ts in queryModel.ListTextSearch)
+                {
+                    predicate.Or(p =>
+                        p.Name.ToLower().Contains(ts.ToLower()) ||
+                        p.Code.ToLower().Contains(ts.ToLower())
+                    );
+                }
+
+                query = query.Where(predicate);
+            }
 
             return query;
-        }
-
-        protected string BuildColumnsTeacher()
-        {
-            return @"
-       [Id]
-      ,[Name]
-      ,[GdTeaching]
-      ,[GdInstruct]
-      ";
         }
     }
 }

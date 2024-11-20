@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LinqKit;
+using Microsoft.EntityFrameworkCore;
 using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
@@ -86,6 +87,8 @@ namespace TeachingAssignmentApp.Business.Project
 
         public async Task AddRangeAsync(IEnumerable<Data.Project> projects)
         {
+            var existingProjects = await _context.Projects.ToListAsync();
+            _context.Projects.RemoveRange(existingProjects);
             await _context.Projects.AddRangeAsync(projects);
             await _context.SaveChangesAsync();
         }
@@ -93,12 +96,19 @@ namespace TeachingAssignmentApp.Business.Project
         private IQueryable<Data.Project> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.Project> query = _context.Projects;
-                //.Include(t => t.ListCourse)
-                //.Include(t => t.ProjectProfessionalGroups);
 
-            if (!string.IsNullOrEmpty(queryModel.Name))
+            var predicate = PredicateBuilder.New<Data.Project>();
+            if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
             {
-                query = query.Where(x => x.Name == queryModel.Name);
+                foreach (var ts in queryModel.ListTextSearch)
+                {
+                    predicate.Or(p =>
+                        p.Name.ToLower().Contains(ts.ToLower()) ||
+                        p.Code.ToLower().Contains(ts.ToLower())
+                    );
+                }
+
+                query = query.Where(predicate);
             }
 
             return query;

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LinqKit;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
@@ -81,6 +83,8 @@ namespace TeachingAssignmentApp.Business.Aspiration
 
         public async Task AddRangeAsync(IEnumerable<Data.Aspiration> aspirations)
         {
+            var existingAspirations = await _context.Aspirations.ToListAsync();
+            _context.Aspirations.RemoveRange(existingAspirations);
             await _context.Aspirations.AddRangeAsync(aspirations);
             await _context.SaveChangesAsync();
         }
@@ -88,8 +92,21 @@ namespace TeachingAssignmentApp.Business.Aspiration
         private IQueryable<Data.Aspiration> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.Aspiration> query = _context.Aspirations;
-                //.Include(t => t.ListCourse)
-                //.Include(t => t.AspirationProfessionalGroups);
+
+            var predicate = PredicateBuilder.New<Data.Aspiration>();
+            if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
+            {
+                foreach (var ts in queryModel.ListTextSearch)
+                {
+                    predicate.Or(p =>
+                        p.StudentId.ToLower().Contains(ts.ToLower()) ||
+                        p.StudentName.ToLower().Contains(ts.ToLower()) || 
+                        p.ClassName.ToLower().Contains(ts.ToLower())
+                    );
+                }
+
+                query = query.Where(predicate);
+            }
 
             return query;
         }

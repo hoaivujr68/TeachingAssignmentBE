@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LinqKit;
+using Microsoft.EntityFrameworkCore;
 using TeachingAssignmentApp.Business.Aspiration;
 using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Data;
@@ -34,7 +35,8 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
             var queryProjectModel = new QueryModel
             {
                 CurrentPage = 1,
-                PageSize = 300
+                PageSize = 300,
+                ListTextSearch = queryModel.ListTextSearch
             };
 
             var allProjects = await _aspirationRepository.GetAllAsync(queryProjectModel);
@@ -47,13 +49,12 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
                                                 .Where(c => !assignedProjectCodes.Contains(c.StudentId))
                                                 .ToList();
 
-            var result = new Pagination<AspirationModel>
-            {
-                Content = aspirationesNotAssigned,
-                CurrentPage = queryModel.CurrentPage ?? 1,
-                PageSize = queryModel.PageSize ?? 20,
-                TotalRecords = aspirationesNotAssigned.Count
-            };
+            var result = new Pagination<AspirationModel>(
+                aspirationesNotAssigned,
+                aspirationesNotAssigned.Count,
+                queryModel.CurrentPage ?? 1,
+                queryModel.PageSize ?? 20
+            );
 
             return result;
         }
@@ -100,6 +101,22 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
         private IQueryable<Data.ProjectAssigment> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.ProjectAssigment> query = _context.ProjectAssigments;
+
+            var predicate = PredicateBuilder.New<Data.ProjectAssigment>();
+            if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
+            {
+                foreach (var ts in queryModel.ListTextSearch)
+                {
+                    predicate.Or(p =>
+                        p.TeacherCode.ToLower().Contains(ts.ToLower()) ||
+                        p.TeacherName.ToLower().Contains(ts.ToLower()) ||
+                        p.StudentId.ToLower().Contains(ts.ToLower()) ||
+                        p.StudentName.ToLower().Contains(ts.ToLower())
+                    );
+                }
+
+                query = query.Where(predicate);
+            }
 
             return query;
         }

@@ -1,5 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using TeachingAssignmentApp.Business.Class;
+using TeachingAssignmentApp.Business.Teacher;
+using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
 
@@ -9,11 +13,23 @@ namespace TeachingAssignmentApp.Business.Project
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IMapper _mapper;
+        private readonly IClassRepository _classRepository;
+        private readonly ITeacherRepository _teacherRepository;
+        private readonly TeachingAssignmentDbContext _context;
 
-        public ProjectService(IProjectRepository projectRepository, IMapper mapper)
+        public ProjectService(
+            IProjectRepository projectRepository, 
+            IMapper mapper, 
+            IClassRepository classRepository, 
+            ITeacherRepository teacherRepository,
+            TeachingAssignmentDbContext context
+            )
         {
             _projectRepository = projectRepository;
             _mapper = mapper;
+            _classRepository = classRepository;
+            _teacherRepository = teacherRepository;
+            _context = context;
         }
 
         public async Task<Pagination<ProjectModel>> GetAllAsync(QueryModel queryModel)
@@ -66,7 +82,7 @@ namespace TeachingAssignmentApp.Business.Project
             }
 
             var projects = new List<Data.Project>();
-
+            double totalGdInstruct = 0.0;
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
@@ -94,6 +110,9 @@ namespace TeachingAssignmentApp.Business.Project
                         {
                             continue;
                         }
+
+                        totalGdInstruct += matchingItem.Value;
+
                         var project = new Data.Project
                         {
                             Id = Guid.NewGuid(),
@@ -113,6 +132,23 @@ namespace TeachingAssignmentApp.Business.Project
             }
 
             await _projectRepository.AddRangeAsync(projects);
+            var totalGdTeaching = await _classRepository.GetTotalGdTeachingAsync();
+            var proportion = Math.Round(totalGdInstruct / totalGdTeaching, 2);
+
+            // Lấy danh sách giáo viên từ DbContext
+            var teachers = await _context.Teachers.ToListAsync();
+
+            foreach (var teacher in teachers)
+            {
+                if (teacher.GdTeaching.HasValue)
+                {
+                    teacher.GdInstruct = Math.Round(teacher.GdTeaching.Value * proportion, 2);
+                }
+            }
+
+            // Cập nhật danh sách giáo viên
+            await _context.SaveChangesAsync();
+
             return true;
         }
     }

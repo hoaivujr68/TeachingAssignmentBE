@@ -31,6 +31,15 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+        [HttpPost("filter")]
+        [ProducesResponseType(typeof(ResponsePagination<AspirationModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllAspirations(
+            [FromBody] QueryModel queryModel)
+        {
+            var result = await _aspirationService.GetAllAsync(queryModel);
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAspirationById(Guid id)
         {

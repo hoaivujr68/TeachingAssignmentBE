@@ -40,7 +40,7 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
-        [HttpPost("teaching")]
+        [HttpGet("teaching")]
         [ProducesResponseType(typeof(ResponsePagination<SolutionModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> TeachingAssignment()
         {
@@ -59,7 +59,7 @@ namespace TeachingAssignmentApp.Controllers
             }
         }
 
-        [HttpPost("aspirating")]
+        [HttpGet("aspirating")]
         [ProducesResponseType(typeof(ResponsePagination<SolutionProjectModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ProjectAssignment()
         {

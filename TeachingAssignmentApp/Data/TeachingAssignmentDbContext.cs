@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Data
 {
@@ -17,6 +18,7 @@ namespace TeachingAssignmentApp.Data
         public DbSet<Aspiration> Aspirations { get; set; }
         public DbSet<TeachingAssignment> TeachingAssignments { get; set; }
         public DbSet<ProjectAssigment> ProjectAssigments { get; set; }
+        public DbSet<TimeTableModel> TimeTableModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

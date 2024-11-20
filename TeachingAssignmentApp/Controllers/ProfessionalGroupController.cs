@@ -31,6 +31,16 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+
+        [HttpPost("filter")]
+        [ProducesResponseType(typeof(ResponsePagination<ProfessionalGroupModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllProfessionalGroups(
+            [FromBody] QueryModel queryModel)
+        {
+            var result = await _professionalGroupService.GetAllAsync(queryModel);
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProfessionalGroupById(Guid id)
         {

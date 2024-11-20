@@ -21,13 +21,22 @@ namespace TeachingAssignmentApp.Controllers
         [ProducesResponseType(typeof(ResponsePagination<TeacherModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeachers(
             [FromQuery] int page = 1,
-            [FromQuery] int size = 20, 
+            [FromQuery] int size = 20,
             [FromQuery] string filter = "{ }")
         {
             var filterObject = JsonSerializer.Deserialize<QueryModel>(filter);
             filterObject.PageSize = size;
             filterObject.CurrentPage = page;
             var result = await _teacherService.GetAllAsync(filterObject);
+            return Ok(result);
+        }
+
+        [HttpPost("filter")]
+        [ProducesResponseType(typeof(ResponsePagination<TeacherModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllTeachers(
+            [FromBody] QueryModel queryModel)
+        {
+            var result = await _teacherService.GetAllAsync(queryModel);
             return Ok(result);
         }
 

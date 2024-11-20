@@ -32,6 +32,15 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+        [HttpPost("filter-assignment")]
+        [ProducesResponseType(typeof(ResponsePagination<ProjectAssigment>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllProjectAssignment(
+            [FromBody] QueryModel queryModel)
+        {
+            var result = await _projectAssignmentRepository.GetAllAsync(queryModel);
+            return Ok(result);
+        }
+
         [HttpGet("not-assignment")]
         [ProducesResponseType(typeof(ResponsePagination<AspirationModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllProjectNotAssignment(
@@ -43,6 +52,15 @@ namespace TeachingAssignmentApp.Controllers
             filterObject.PageSize = size;
             filterObject.CurrentPage = page;
             var result = await _projectAssignmentRepository.GetProjectNotAssignmentAsync(filterObject);
+            return Ok(result);
+        }
+
+        [HttpPost("filter-not-assignment")]
+        [ProducesResponseType(typeof(ResponsePagination<AspirationModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllProjectNotAssignment(
+            [FromBody] QueryModel queryModel)
+        {
+            var result = await _projectAssignmentRepository.GetProjectNotAssignmentAsync(queryModel);
             return Ok(result);
         }
     }

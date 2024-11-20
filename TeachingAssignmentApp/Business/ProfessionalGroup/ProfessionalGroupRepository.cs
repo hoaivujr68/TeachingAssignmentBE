@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LinqKit;
+using Microsoft.EntityFrameworkCore;
 using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
@@ -8,11 +9,6 @@ namespace TeachingAssignmentApp.Business.ProfessionalGroup
     public class ProfessionalGroupRepository : IProfessionalGroupRepository
     {
         private readonly TeachingAssignmentDbContext _context;
-
-        //protected string ProfessionalGroupTableName
-        //{
-        //    get { return _context.Model.FindEntityType(typeof(ProfessionalGroup)).GetTableName(); }
-        //}
 
         public ProfessionalGroupRepository(TeachingAssignmentDbContext context)
         {
@@ -74,6 +70,8 @@ namespace TeachingAssignmentApp.Business.ProfessionalGroup
 
         public async Task AddRangeAsync(IEnumerable<Data.ProfessionalGroup> professionalGroups)
         {
+            var existingProfessionalGroups = await _context.ProfessionalGroups.ToListAsync();
+            _context.ProfessionalGroups.RemoveRange(existingProfessionalGroups);
             await _context.ProfessionalGroups.AddRangeAsync(professionalGroups);
             await _context.SaveChangesAsync();
         }
@@ -83,11 +81,18 @@ namespace TeachingAssignmentApp.Business.ProfessionalGroup
             IQueryable<Data.ProfessionalGroup> query = _context.ProfessionalGroups
                 .Include(pg => pg.ListCourse);
 
-            if (!string.IsNullOrEmpty(queryModel.Name))
+            var predicate = PredicateBuilder.New<Data.ProfessionalGroup>();
+            if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
             {
-                query = query.Where(x => x.Name == queryModel.Name);
-            }
+                foreach (var ts in queryModel.ListTextSearch)
+                {
+                    predicate.Or(p =>
+                        p.Name.ToLower().Contains(ts.ToLower())
+                    );
+                }
 
+                query = query.Where(predicate);
+            }
             return query;
         }
 

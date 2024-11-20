@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LinqKit;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
@@ -59,6 +61,11 @@ namespace TeachingAssignmentApp.Business.Class
                 .ToListAsync();
         }
 
+        public async Task<double> GetTotalGdTeachingAsync()
+        {
+            return await _context.Classes.SumAsync(t => t.GdTeaching);
+        }
+
         public async Task AddAsync(Data.Class classe)
         {
             if (classe.Id == Guid.Empty)
@@ -88,6 +95,10 @@ namespace TeachingAssignmentApp.Business.Class
 
         public async Task AddRangeAsync(IEnumerable<Data.Class> classes)
         {
+            var timeTableModels = await _context.TimeTableModels.ToListAsync();
+            _context.TimeTableModels.RemoveRange(timeTableModels);
+            var classesRemove = await _context.Classes.ToListAsync();
+            _context.Classes.RemoveRange(classesRemove);
             await _context.Classes.AddRangeAsync(classes);
             await _context.SaveChangesAsync();
         }
@@ -95,12 +106,19 @@ namespace TeachingAssignmentApp.Business.Class
         private IQueryable<Data.Class> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.Class> query = _context.Classes;
-                //.Include(t => t.ListCourse)
-                //.Include(t => t.ClassProfessionalGroups);
 
-            if (!string.IsNullOrEmpty(queryModel.Name))
+            var predicate = PredicateBuilder.New<Data.Class>();
+            if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
             {
-                query = query.Where(x => x.Name == queryModel.Name);
+                foreach (var ts in queryModel.ListTextSearch)
+                {
+                    predicate.Or(p =>
+                        p.Name.ToLower().Contains(ts.ToLower()) ||
+                        p.Code.ToLower().Contains(ts.ToLower())
+                    );
+                }
+
+                query = query.Where(predicate);
             }
 
             return query;

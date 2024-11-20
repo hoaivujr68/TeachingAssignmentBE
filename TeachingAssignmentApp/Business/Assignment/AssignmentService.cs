@@ -1,4 +1,5 @@
-﻿using TeachingAssignmentApp.Business.Aspiration;
+﻿using Microsoft.EntityFrameworkCore;
+using TeachingAssignmentApp.Business.Aspiration;
 using TeachingAssignmentApp.Business.Assignment.Model;
 using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Business.Course;
@@ -7,6 +8,7 @@ using TeachingAssignmentApp.Business.Project;
 using TeachingAssignmentApp.Business.ProjectAssigment;
 using TeachingAssignmentApp.Business.Teacher;
 using TeachingAssignmentApp.Business.TeachingAssignment;
+using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.Assignment
@@ -21,6 +23,7 @@ namespace TeachingAssignmentApp.Business.Assignment
         private readonly IAspirationRepository _aspirationRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IProjectAssignmentRepository _projectAssignmentRepository;
+        private readonly TeachingAssignmentDbContext _context;
         public AssignmentService(
             ITeacherRepository teacherRepository,
             ICourseRepository courseRepository,
@@ -29,7 +32,8 @@ namespace TeachingAssignmentApp.Business.Assignment
             ITeachingAssignmentRepository teachingAssignmentRepository,
             IAspirationRepository aspirationRepository,
             IProjectRepository projectRepository,
-            IProjectAssignmentRepository projectAssignmentRepository
+            IProjectAssignmentRepository projectAssignmentRepository,
+            TeachingAssignmentDbContext context
             )
         {
             _teacherRepository = teacherRepository;
@@ -40,6 +44,7 @@ namespace TeachingAssignmentApp.Business.Assignment
             _aspirationRepository = aspirationRepository;
             _projectRepository = projectRepository;
             _projectAssignmentRepository = projectAssignmentRepository;
+            _context = context;
         }
 
         public async Task<List<TeacherInputModel>> GetAllTeacherInfo()
@@ -180,6 +185,9 @@ namespace TeachingAssignmentApp.Business.Assignment
 
         public async Task<SolutionModel> TeachingAssignment()
         {
+            var teachingAssignment = _context.TeachingAssignments.ToListAsync();
+            _context.TeachingAssignments.RemoveRange(await teachingAssignment);
+
             var teacherInfoList = await GetAllTeacherInfo();
             var classInfoList = await GetAllClassInfo();
             var solutions = new List<SolutionModel>();
@@ -307,6 +315,9 @@ namespace TeachingAssignmentApp.Business.Assignment
 
         public async Task<SolutionProjectModel> ProjectAssignment()
         {
+            var projectAssigments = _context.ProjectAssigments.ToListAsync();
+            _context.ProjectAssigments.RemoveRange(await projectAssigments);
+
             var aspirationInfoList = await GetAllAspirationInfo();
             var solutions = new List<SolutionProjectModel>();
             var listFiness = new List<int>();

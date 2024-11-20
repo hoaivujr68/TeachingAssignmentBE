@@ -89,7 +89,6 @@ namespace TeachingAssignmentApp.Business.Teacher
                                 Code = $"GV{teacherCounter:D3}",
                                 Name = teacherName,
                                 GdTeaching = gdTeaching,
-                                GdInstruct = Math.Round(gdTeaching * 0.43 / 0.57, 2)
                             };
 
                             teachers.Add(teacher);

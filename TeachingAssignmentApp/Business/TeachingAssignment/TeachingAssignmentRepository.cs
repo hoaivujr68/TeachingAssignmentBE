@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LinqKit;
+using Microsoft.EntityFrameworkCore;
 using TeachingAssignmentApp.Business.Assignment.Model;
 using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Data;
@@ -34,7 +35,8 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
             var queryClassModel = new QueryModel
             {
                 CurrentPage = 1,
-                PageSize = 200
+                PageSize = 200,
+                ListTextSearch = queryModel.ListTextSearch
             };
 
             var allClasses = await _classRepository.GetAllAsync(queryClassModel);
@@ -47,13 +49,12 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
                                                 .Where(c => !assignedClassCodes.Contains(c.Code))
                                                 .ToList();
 
-            var result = new Pagination<ClassModel>
-            {
-                Content = classesNotAssigned,
-                CurrentPage = queryModel.CurrentPage ?? 1,
-                PageSize = queryModel.PageSize ?? 20,
-                TotalRecords = classesNotAssigned.Count
-            };
+            var result = new Pagination<ClassModel>(
+                classesNotAssigned,
+                classesNotAssigned.Count,
+                queryModel.CurrentPage ?? 1,
+                queryModel.PageSize ?? 20
+);
 
             return result;
         }
@@ -100,17 +101,20 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
         private IQueryable<Data.TeachingAssignment> BuildQuery(QueryModel queryModel)
         {
             IQueryable<Data.TeachingAssignment> query = _context.TeachingAssignments;
-                //.Include(t => t.ListCourse)
-                //.Include(t => t.TeachingAssignmentProfessionalGroups);
 
-            if (!string.IsNullOrEmpty(queryModel.Name))
+            var predicate = PredicateBuilder.New<Data.TeachingAssignment>();
+            if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
             {
-                query = query.Where(x => x.Name == queryModel.Name);
-            }
+                foreach (var ts in queryModel.ListTextSearch)
+                {
+                    predicate.Or(p =>
+                        p.Name.ToLower().Contains(ts.ToLower()) ||
+                        p.Code.ToLower().Contains(ts.ToLower()) ||
+                        p.TeacherCode.ToLower().Contains(ts.ToLower())
+                    );
+                }
 
-            if (!string.IsNullOrEmpty(queryModel.Code))
-            {
-                query = query.Where(x => x.Code == queryModel.Code);
+                query = query.Where(predicate);
             }
 
             return query;

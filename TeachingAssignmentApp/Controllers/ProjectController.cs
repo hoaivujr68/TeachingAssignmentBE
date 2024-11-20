@@ -31,6 +31,15 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+        [HttpPost("filter")]
+        [ProducesResponseType(typeof(ResponsePagination<ProjectModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllProjects(
+            [FromBody] QueryModel queryModel)
+        {
+            var result = await _projectService.GetAllAsync(queryModel);
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProjectById(Guid id)
         {
