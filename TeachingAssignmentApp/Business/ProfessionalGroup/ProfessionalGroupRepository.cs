@@ -41,6 +41,11 @@ namespace TeachingAssignmentApp.Business.ProfessionalGroup
             return await _context.ProfessionalGroups.FindAsync(id);
         }
 
+        public async Task<Data.ProfessionalGroup> GetByNameAsync(string professionalGroupName)
+        {
+            return await _context.ProfessionalGroups.FindAsync(professionalGroupName);
+        }
+
         public async Task AddAsync(Data.ProfessionalGroup professionalGroup)
         {
             if (professionalGroup.Id == Guid.Empty)
@@ -94,15 +99,6 @@ namespace TeachingAssignmentApp.Business.ProfessionalGroup
                 query = query.Where(predicate);
             }
             return query;
-        }
-
-        protected string BuildColumnsProfessionalGroup()
-        {
-            return @"
-       [Id]
-      ,[Name]
-      ,[TeacherId]
-      ";
         }
     }
 }

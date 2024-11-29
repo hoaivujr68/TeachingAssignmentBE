@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Teacher;
 using TeachingAssignmentApp.Helper;
@@ -18,6 +19,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<TeacherModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeachers(
             [FromQuery] int page = 1,
@@ -32,6 +34,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("filter")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<TeacherModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeachers(
             [FromBody] QueryModel queryModel)
@@ -41,6 +44,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetTeacherById(Guid id)
         {
             var teacher = await _teacherService.GetByIdAsync(id);
@@ -52,6 +56,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddTeacher([FromBody] TeacherModel teacherModel)
         {
             await _teacherService.AddAsync(teacherModel);
@@ -59,6 +64,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateTeacher(Guid id, [FromBody] TeacherModel teacherModel)
         {
             if (id != teacherModel.Id)
@@ -77,6 +83,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteTeacher(Guid id)
         {
             var existingTeacher = await _teacherService.GetByIdAsync(id);
@@ -90,6 +97,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("import")]
+        [Authorize]
         public async Task<IActionResult> ImportTeachers(IFormFile file)
         {
             try

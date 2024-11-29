@@ -147,6 +147,7 @@ namespace TeachingAssignmentApp.Business.Project
             }
 
             // Cập nhật danh sách giáo viên
+            _context.Teachers.UpdateRange(teachers);
             await _context.SaveChangesAsync();
 
             return true;

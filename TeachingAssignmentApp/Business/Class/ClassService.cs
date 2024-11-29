@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using OfficeOpenXml;
+using TeachingAssignmentApp.Business.Course;
+using TeachingAssignmentApp.Business.ProfessionalGroup;
 using TeachingAssignmentApp.Business.Project;
 using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Model;
@@ -11,12 +13,18 @@ namespace TeachingAssignmentApp.Business.Class
         private readonly IClassRepository _classeRepository;
         private readonly IMapper _mapper;
         private readonly IProjectService _projectService;
-
-        public ClassService(IClassRepository classeRepository, IMapper mapper, IProjectService projectService)
+        private readonly ICourseRepository _courseRepository;
+        public ClassService(
+            IClassRepository classeRepository,
+            IMapper mapper,
+            IProjectService projectService,
+            ICourseRepository courseRepository
+            )
         {
             _classeRepository = classeRepository;
             _mapper = mapper;
             _projectService = projectService;
+            _courseRepository = courseRepository;
         }
 
         public async Task<Pagination<ClassModel>> GetAllAsync(QueryModel queryModel)
@@ -84,6 +92,18 @@ namespace TeachingAssignmentApp.Business.Class
                             continue;
                         }
 
+                        string courseName = worksheet.Cells[row, 4].Text.Trim();
+                        if (string.IsNullOrEmpty(courseName))
+                        {
+                            continue;
+                        }
+
+                        var course = await _courseRepository.GetByNameAsync(courseName);
+                        if (course == null)
+                        {
+                            continue;
+                        }
+
                         string timeTable = worksheet.Cells[row, 13].Text.Trim();
                         if (!processedCourses.Contains(classeId))
                         {
@@ -102,7 +122,7 @@ namespace TeachingAssignmentApp.Business.Class
                             };
 
 
-                            if (timeTable != "" && timeTable != null)
+                            if (timeTable != "HV liên hệ với giáo viên" && timeTable != null)
                             {
                                 var schedules = timeTable.Split(new[] { "Sáng", "Chiều" }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -120,6 +140,21 @@ namespace TeachingAssignmentApp.Business.Class
                                         week += ", " + parts[i].Trim();
                                     }
 
+                                    var periods = classPeriod.Split('-');
+
+                                    // Lấy giá trị bắt đầu và kết thúc
+                                    int batDau = int.Parse(periods[0]);
+                                    int ketThuc = int.Parse(periods[1]);
+
+                                    // Điều chỉnh nếu là "Chiều"
+                                    if (seasion == "Chiều")
+                                    {
+                                        batDau += 6;
+                                        ketThuc += 6;
+                                    }
+
+                                    var period = Enumerable.Range(batDau, ketThuc - batDau + 1).ToArray();
+
                                     var timeTableModel = new TimeTableModel
                                     {
                                         Id = Guid.NewGuid(),
@@ -127,7 +162,8 @@ namespace TeachingAssignmentApp.Business.Class
                                         Seasion = seasion,
                                         ClassPeriod = classPeriod,
                                         Room = room,
-                                        Week = week
+                                        Week = week,
+                                        Period = period
                                     };
 
                                     classe.TimeTableDetail.Add(timeTableModel);

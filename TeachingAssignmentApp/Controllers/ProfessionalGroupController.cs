@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.ProfessionalGroup;
 using TeachingAssignmentApp.Helper;
@@ -18,6 +19,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ProfessionalGroupModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllProfessionalGroups(
             [FromQuery] int page = 1,
@@ -33,6 +35,7 @@ namespace TeachingAssignmentApp.Controllers
 
 
         [HttpPost("filter")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ProfessionalGroupModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllProfessionalGroups(
             [FromBody] QueryModel queryModel)
@@ -42,6 +45,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetProfessionalGroupById(Guid id)
         {
             var professionalGroup = await _professionalGroupService.GetByIdAsync(id);
@@ -53,6 +57,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddProfessionalGroup([FromBody] ProfessionalGroupModel professionalGroupModel)
         {
             await _professionalGroupService.AddAsync(professionalGroupModel);
@@ -60,6 +65,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateProfessionalGroup(Guid id, [FromBody] ProfessionalGroupModel professionalGroupModel)
         {
             if (id != professionalGroupModel.Id)
@@ -78,6 +84,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteProfessionalGroup(Guid id)
         {
             var existingProfessionalGroup = await _professionalGroupService.GetByIdAsync(id);
@@ -91,6 +98,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("import")]
+        [Authorize]
         public async Task<IActionResult> ImportProfessionalGroups(IFormFile file)
         {
             try

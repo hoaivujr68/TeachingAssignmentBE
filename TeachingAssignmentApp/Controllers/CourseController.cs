@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Course;
 using TeachingAssignmentApp.Helper;
@@ -18,6 +19,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<CourseModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllCourses(
             [FromQuery] int page = 1,
@@ -32,6 +34,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetCourseById(Guid id)
         {
             var course = await _courseService.GetByIdAsync(id);
@@ -43,6 +46,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddCourse([FromBody] CourseModel courseModel)
         {
             await _courseService.AddAsync(courseModel);
@@ -50,6 +54,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateCourse(Guid id, [FromBody] CourseModel courseModel)
         {
             if (id != courseModel.Id)
@@ -68,6 +73,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteCourse(Guid id)
         {
             var existingCourse = await _courseService.GetByIdAsync(id);

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Assignment;
 using TeachingAssignmentApp.Business.TeachingAssignment;
@@ -20,6 +21,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("assignment")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<TeachingAssignment>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeachingAssignment(
             [FromQuery] int page = 1,
@@ -34,6 +36,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("filter-assignment")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<TeachingAssignment>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeachingAssignment(
             [FromBody] QueryModel queryModel)
@@ -43,6 +46,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("not-assignment")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ClassModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeachingNotAssignment(
             [FromQuery] int page = 1,
@@ -58,6 +62,7 @@ namespace TeachingAssignmentApp.Controllers
 
 
         [HttpPost("filter-not-assignment")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ClassModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeachingNotAssignment(
             [FromBody] QueryModel queryModel)

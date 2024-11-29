@@ -33,6 +33,12 @@ namespace TeachingAssignmentApp.Business.Course
         {
             return await _context.Courses.FindAsync(id);
         }
+
+        public async Task<Data.Course> GetByNameAsync(string name)
+        {
+            return await _context.Courses
+                .FirstOrDefaultAsync(course => course.Name == name);
+        }
         public async Task<IEnumerable<Data.Course>> GetByTeacherIdAsync(Guid teacherId)
         {
             return await _context.Courses

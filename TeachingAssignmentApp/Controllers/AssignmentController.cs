@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TeachingAssignmentApp.Business.Assignment;
 using TeachingAssignmentApp.Business.Assignment.Model;
 using TeachingAssignmentApp.Helper;
@@ -17,6 +18,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("teachers")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<TeacherInputModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeacherInfo()
         {
@@ -25,6 +27,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("classes")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ClassInputModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllClassInfo()
         {
@@ -33,6 +36,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("aspirations")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<AspirationInputModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAspirationInfo()
         {
@@ -41,6 +45,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("teaching")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<SolutionModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> TeachingAssignment()
         {
@@ -60,6 +65,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("aspirating")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<SolutionProjectModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ProjectAssignment()
         {

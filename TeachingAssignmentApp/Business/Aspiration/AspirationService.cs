@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using OfficeOpenXml;
 using TeachingAssignmentApp.Business.Aspiration;
+using TeachingAssignmentApp.Business.Project;
 using TeachingAssignmentApp.Business.Teacher;
 using TeachingAssignmentApp.Model;
 
@@ -11,12 +12,19 @@ namespace TeachingAssignmentApp.Business.Aspiration
         private readonly IAspirationRepository _aspirationRepository;
         private readonly ITeacherRepository _teacherRepository;
         private readonly IMapper _mapper;
+        private readonly IProjectRepository _projectRepository;
 
-        public AspirationService(IAspirationRepository aspirationRepository, IMapper mapper, ITeacherRepository teacherRepository)
+        public AspirationService(
+            IAspirationRepository aspirationRepository, 
+            IMapper mapper, 
+            ITeacherRepository teacherRepository,
+            IProjectRepository projectRepository
+            )
         {
             _aspirationRepository = aspirationRepository;
             _mapper = mapper;
             _teacherRepository = teacherRepository;
+            _projectRepository = projectRepository;
         }
 
         public async Task<Pagination<AspirationModel>> GetAllAsync(QueryModel queryModel)
@@ -91,6 +99,13 @@ namespace TeachingAssignmentApp.Business.Aspiration
                         }
                         var teacher3 = await _teacherRepository.GetByNameAsync(worksheet.Cells[row, 19].Text.Trim());
                         if (teacher3 == null)
+                        {
+                            continue;
+                        }
+
+                        var className = worksheet.Cells[row, 8].Text.Trim();
+                        var project = await _projectRepository.GetByCourseNameAsync(className);
+                        if (project == null)
                         {
                             continue;
                         }

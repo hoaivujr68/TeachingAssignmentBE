@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Project;
 using TeachingAssignmentApp.Helper;
@@ -18,6 +19,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ProjectModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllProjects(
             [FromQuery] int page = 1,
@@ -32,6 +34,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("filter")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ProjectModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllProjects(
             [FromBody] QueryModel queryModel)
@@ -41,6 +44,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetProjectById(Guid id)
         {
             var project = await _projectService.GetByIdAsync(id);
@@ -52,6 +56,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddProject([FromBody] ProjectModel projectModel)
         {
             await _projectService.AddAsync(projectModel);
@@ -59,6 +64,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateProject(Guid id, [FromBody] ProjectModel projectModel)
         {
             if (id != projectModel.Id)
@@ -77,6 +83,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteProject(Guid id)
         {
             var existingProject = await _projectService.GetByIdAsync(id);
@@ -90,6 +97,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("import")]
+        [Authorize]
         public async Task<IActionResult> ImportProjects(IFormFile file)
         {
             try

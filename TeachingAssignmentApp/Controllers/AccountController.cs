@@ -8,17 +8,17 @@ namespace MyApiNetCore6.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly IAccountService _accountService;
+        private readonly IAccountRepository _accountRepository;
 
-        public AccountsController(IAccountService accountService)
+        public AccountsController(IAccountRepository accountRepository)
         {
-            _accountService = accountService;
+            _accountRepository = accountRepository;
         }
 
         [HttpPost("sign-up")]
         public async Task<IActionResult> SignUp(SignUpModel signUpModel)
         {
-            var result = await _accountService.SignUpAsync(signUpModel);
+            var result = await _accountRepository.SignUpAsync(signUpModel);
             if (result.Succeeded)
             {
                 return Ok(new { Success = true, Message = "Registration successful" });
@@ -30,14 +30,14 @@ namespace MyApiNetCore6.Controllers
         [HttpPost("sign-in")]
         public async Task<IActionResult> SignIn(SignInModel signInModel)
         {
-            var token = await _accountService.SignInAsync(signInModel);
+            var signInResponse = await _accountRepository.SignInAsync(signInModel);
 
-            if (string.IsNullOrEmpty(token))
+            if (signInResponse == null)
             {
                 return Unauthorized(new { Success = false, Message = "Invalid credentials" });
             }
 
-            return Ok(new { Success = true, Token = token });
+            return Ok(new { Success = true, Data = signInResponse });
         }
     }
 }

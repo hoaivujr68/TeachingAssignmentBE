@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Aspiration;
 using TeachingAssignmentApp.Helper;
@@ -18,6 +19,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<AspirationModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAspirations(
             [FromQuery] int page = 1,
@@ -32,6 +34,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("filter")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<AspirationModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAspirations(
             [FromBody] QueryModel queryModel)
@@ -41,6 +44,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetAspirationById(Guid id)
         {
             var aspiration = await _aspirationService.GetByIdAsync(id);
@@ -52,6 +56,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddAspiration([FromBody] AspirationModel aspirationModel)
         {
             await _aspirationService.AddAsync(aspirationModel);
@@ -59,6 +64,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateAspiration(Guid id, [FromBody] AspirationModel aspirationModel)
         {
             if (id != aspirationModel.Id)
@@ -77,6 +83,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteAspiration(Guid id)
         {
             var existingAspiration = await _aspirationService.GetByIdAsync(id);
@@ -90,6 +97,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("import")]
+        [Authorize]
         public async Task<IActionResult> ImportAspirations(IFormFile file)
         {
             try

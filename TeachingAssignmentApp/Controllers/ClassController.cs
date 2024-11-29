@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Helper;
@@ -18,6 +19,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ClassModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllClasses(
             [FromQuery] int page = 1,
@@ -32,6 +34,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("filter")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ClassModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllClasses(
             [FromBody] QueryModel queryModel)
@@ -41,6 +44,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetClassById(Guid id)
         {
             var classes = await _classesService.GetByIdAsync(id);
@@ -52,6 +56,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddClass([FromBody] ClassModel classesModel)
         {
             await _classesService.AddAsync(classesModel);
@@ -59,6 +64,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateClass(Guid id, [FromBody] ClassModel classesModel)
         {
             if (id != classesModel.Id)
@@ -77,6 +83,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteClass(Guid id)
         {
             var existingClass = await _classesService.GetByIdAsync(id);
@@ -90,6 +97,7 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("import")]
+        [Authorize]
         public async Task<IActionResult> ImportClasses(IFormFile file)
         {
             try

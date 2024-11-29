@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using TeachingAssignmentApp.Data;
+using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.Account
 {
     public interface IAccountRepository
     {
-        Task<SignInResult> SignInAsync(string email, string password);
-        Task<IdentityResult> SignUpAsync(User user, string password);
+        Task<SignInResponse> SignInAsync(SignInModel model);
+        Task<IdentityResult> SignUpAsync(SignUpModel model);
     }
 }
