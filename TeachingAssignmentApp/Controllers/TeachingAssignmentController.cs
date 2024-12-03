@@ -70,5 +70,24 @@ namespace TeachingAssignmentApp.Controllers
             var result = await _teachingAssignmentRepository.GetClassNotAssignmentAsync(queryModel);
             return Ok(result);
         }
+
+        [HttpGet("export")]
+        [Authorize]
+        public async Task<IActionResult> ExportTeachingAssignment()
+        {
+            try
+            {
+                // Gọi service để lấy dữ liệu file Excel
+                var fileContent = await _teachingAssignmentRepository.ExportTeachingAssignment();
+                var fileName = "TeachingAssignmentss.xlsx";
+
+                // Trả về file dưới dạng tải xuống
+                return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }

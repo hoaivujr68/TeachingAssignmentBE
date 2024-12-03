@@ -1,5 +1,7 @@
 ﻿using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using TeachingAssignmentApp.Business.Aspiration;
 using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Data;
@@ -97,6 +99,106 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
             await _context.ProjectAssigments.AddRangeAsync(projectAssignments);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<byte[]> ExportProjectAssignment()
+        {
+            var projectAssignments = await _context.ProjectAssigments
+                                                     .OrderBy(pa => pa.TeacherCode)
+                                                     .ToListAsync();
+
+            if (projectAssignments == null || projectAssignments.Count == 0)
+            {
+                throw new InvalidOperationException("No projectAssignments available to export.");
+            }
+
+            var teachers = await _context.Teachers.ToListAsync();
+
+            // Nhóm phân công theo TeacherCode và tính tổng GdInstruct của từng giảng viên
+            var groupedAssignments = projectAssignments
+                .GroupBy(pa => pa.TeacherCode)
+                .Select(g => new
+                {
+                    TeacherCode = g.Key,
+                    TeacherName = g.First().TeacherName,
+                    TotalGdInstruct = g.Sum(pa => pa.GdInstruct),
+                    Assignments = g.ToList()
+                })
+                .OrderBy(g => g.TeacherCode)
+                .ToList();
+
+            // Tạo dictionary để tra cứu GdInstruct của giảng viên nhanh hơn
+            var teacherDictionary = teachers.ToDictionary(t => t.Code, t => t.GdInstruct);
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Phân công hướng dẫn đồ án");
+
+                // Thêm tiêu đề cột
+                worksheet.Cells[1, 1].Value = "Mã giảng viên";
+                worksheet.Cells[1, 2].Value = "Tên giảng viên";
+                worksheet.Cells[1, 3].Value = "Mã sinh viên";
+                worksheet.Cells[1, 4].Value = "Tên sinh viên";
+                worksheet.Cells[1, 5].Value = "Đề tài";
+                worksheet.Cells[1, 6].Value = "Mã đồ án";
+                worksheet.Cells[1, 7].Value = "Hệ";
+                worksheet.Cells[1, 8].Value = "Trạng thái";
+                worksheet.Cells[1, 9].Value = "Nguyện vọng xác nhận";
+                worksheet.Cells[1, 10].Value = "Nguyện vọng 1";
+                worksheet.Cells[1, 11].Value = "Nguyện vọng 2";
+                worksheet.Cells[1, 12].Value = "Nguyện vọng 3";
+                worksheet.Cells[1, 13].Value = "Gd đồ án";
+                worksheet.Cells[1, 14].Value = "Gd giảng viên";
+                worksheet.Cells[1, 15].Value = "Tổng Gd phân công theo giảng viên";
+                worksheet.Cells[1, 16].Value = "Tỷ lệ";
+
+                // Định dạng tiêu đề
+                worksheet.Cells[1, 1, 1, 16].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 16].Style.Font.Size = 12;
+                worksheet.Cells[1, 1, 1, 16].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[1, 1, 1, 16].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGreen);
+
+                int row = 2;
+                foreach (var group in groupedAssignments)
+                {
+                    // Thêm thông tin giảng viên
+                    worksheet.Cells[row, 1].Value = group.TeacherCode;
+                    worksheet.Cells[row, 2].Value = group.TeacherName;
+                    worksheet.Cells[row, 15].Value = group.TotalGdInstruct;
+
+                    // Tìm GdInstruct của giảng viên trong dictionary
+                    if (teacherDictionary.TryGetValue(group.TeacherCode, out var teacherGdInstruct))
+                    {
+                        worksheet.Cells[row, 14].Value = teacherGdInstruct;
+                        worksheet.Cells[row, 16].Value = Math.Round((double)(group.TotalGdInstruct ?? 0) / (double)(teacherGdInstruct ?? 0), 2).ToString();
+                    }
+
+                    // Thêm dữ liệu phân công của từng giảng viên
+                    foreach (var assignment in group.Assignments)
+                    {
+                        worksheet.Cells[row, 3].Value = assignment.StudentId;
+                        worksheet.Cells[row, 4].Value = assignment.StudentName;
+                        worksheet.Cells[row, 5].Value = assignment.Topic;
+                        worksheet.Cells[row, 6].Value = assignment.ClassName;
+                        worksheet.Cells[row, 7].Value = assignment.GroupName;
+                        worksheet.Cells[row, 8].Value = assignment.Status;
+                        worksheet.Cells[row, 9].Value = assignment.DesireAccept;
+                        worksheet.Cells[row, 10].Value = assignment.Aspiration1;
+                        worksheet.Cells[row, 11].Value = assignment.Aspiration2;
+                        worksheet.Cells[row, 12].Value = assignment.Aspiration3;
+                        worksheet.Cells[row, 13].Value = assignment.GdInstruct;
+
+                        row++; // Di chuyển xuống dòng tiếp theo
+                    }
+                }
+
+                // Tự động căn chỉnh kích thước cột
+                worksheet.Cells.AutoFitColumns();
+
+                // Trả về file Excel dưới dạng byte array
+                return package.GetAsByteArray();
+            }
+        }
+
 
         private IQueryable<Data.ProjectAssigment> BuildQuery(QueryModel queryModel)
         {

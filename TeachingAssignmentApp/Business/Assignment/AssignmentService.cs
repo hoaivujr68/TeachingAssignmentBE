@@ -11,6 +11,7 @@ using TeachingAssignmentApp.Business.Teacher;
 using TeachingAssignmentApp.Business.TeacherProfessionalGroup;
 using TeachingAssignmentApp.Business.TeachingAssignment;
 using TeachingAssignmentApp.Data;
+using TeachingAssignmentApp.Migrations;
 using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.Assignment
@@ -188,9 +189,9 @@ namespace TeachingAssignmentApp.Business.Assignment
         }
 
         private static int EvaluateSolutionTeaching(
-    List<(ClassInputModel Class, TeacherInputModel? Teacher)> solution,
-    List<TeacherInputModel> teachers,
-    List<ClassInputModel> classes)
+            List<(ClassInputModel Class, TeacherInputModel? Teacher)> solution,
+            List<TeacherInputModel> teachers,
+            List<ClassInputModel> classes)
         {
             int totalScore = 0;
 
@@ -220,7 +221,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                         {
                             if (day == scheduledDay && SchedulesOverlap(scheduledPeriods, period))
                             {
-                                totalScore -= 10; // Phạt nếu lịch trùng
+                                totalScore -= 20; // Phạt nếu lịch trùng
                                 break;
                             }
                         }
@@ -270,87 +271,327 @@ namespace TeachingAssignmentApp.Business.Assignment
         }
 
         public static (Dictionary<ClassInputModel, TeacherInputModel>, int) RunHarmonySearchTeaching(
-    List<TeacherInputModel> teachers,
-    List<ClassInputModel> classes,
-    int memorySize = 100,
-    int maxIterations = 1000)
+            List<TeacherInputModel> teachers,
+            List<ClassInputModel> classes,
+            int memorySize = 100,
+            int maxIterations = 1000,
+            double hmcr = 0.9, // Harmony Memory Consideration Rate
+            double par = 0.1 // Pitch Adjust Rate
+        )
         {
-            // Sắp xếp giáo viên theo `time_gl` tăng dần
+            // Sắp xếp giáo viên theo `GdTeaching` (tương đương với `time_gl` trong Python)
             var sortedTeachers = teachers.OrderBy(t => t.GdTeaching).ToList();
 
-            // Khởi tạo bộ nhớ hài hòa
+            // Khởi tạo bộ nhớ hòa âm
             var harmonyMemory = InitHarmonyMemoryTeaching(teachers, classes, memorySize);
 
             // Tiến hành chạy thuật toán Harmony Search
             for (int i = 0; i < maxIterations; i++)
             {
-                // Tạo một giải pháp mới
-                var newSolution = new Dictionary<ClassInputModel, TeacherInputModel>();
-                var teacherWorkload = teachers.ToDictionary(t => t, t => 0.0);
+                var newSolution = new List<(ClassInputModel Class, TeacherInputModel? Teacher)>();
+                   
+                var teacherWorkload = teachers.ToDictionary(t => t.Code, t => 0.0);
 
-                // Phân công giảng viên cho các lớp học
+                var teacherSchedules = teachers.ToDictionary(
+                    t => t.Code,
+                    t => t.Schedule.SelectMany(
+                        schedule =>
+                            new[] { (schedule.Day, schedule.Periods.ToList()) } // Bao bọc tuple trong mảng
+                    ).ToList()
+                );
+
+
                 foreach (var classItem in classes)
                 {
                     // Chọn ngẫu nhiên một giải pháp từ bộ nhớ hòa âm
-                    var randomSolution = harmonyMemory.ElementAt(new Random().Next(harmonyMemory.Count));
+                    var randomSolution = harmonyMemory[new Random().Next(harmonyMemory.Count)];
                     var selectedTeacher = randomSolution.FirstOrDefault(s => s.Class.Code == classItem.Code).Teacher;
 
-                    // Kiểm tra xem giáo viên đã chọn có hợp lệ không
                     if (selectedTeacher != null &&
-                        classItem.CourseName != null &&
-                        selectedTeacher.ListCourse.Any(c => c.Name == classItem.CourseName) &&
-                        teacherWorkload[selectedTeacher] + classItem.GdTeaching <= 2 * selectedTeacher.GdTeaching)
+                        IsValidAssignment(selectedTeacher, classItem, teachers, teacherWorkload, teacherSchedules))
                     {
-                        newSolution[classItem] = selectedTeacher;
-                        teacherWorkload[selectedTeacher] += classItem.GdTeaching;
+                        // Phân công giáo viên hợp lệ
+                        AssignTeacherToClass(selectedTeacher, classItem, newSolution, teacherWorkload, teacherSchedules);
                     }
                     else
                     {
-                        // Ưu tiên phân công giáo viên có `time_gl` thấp trong danh sách hợp lệ
-                        var validTeachers = sortedTeachers.Where(t =>
-                            t.ListCourse != null &&
-                            t.ListCourse.Any(c => c.Name == classItem.CourseName) &&
-                            teacherWorkload[t] + classItem.GdTeaching <= 2 * t.GdTeaching).ToList();
+                        // Tìm giáo viên hợp lệ từ danh sách sắp xếp
+                        var validTeachers = FindValidTeachers(classItem, sortedTeachers, teachers, teacherWorkload, teacherSchedules);
 
                         if (validTeachers.Any())
                         {
                             var assignedTeacher = validTeachers.First();
-                            newSolution[classItem] = assignedTeacher;
-                            teacherWorkload[assignedTeacher] += classItem.GdTeaching;
+                            AssignTeacherToClass(assignedTeacher, classItem, newSolution, teacherWorkload, teacherSchedules);
                         }
                         else
                         {
-                            newSolution[classItem] = null;  // Không thể gán nếu không hợp lệ
+                            newSolution.Add((classItem, null));
                         }
                     }
                 }
 
-                // Cập nhật bộ nhớ hài hòa (giải pháp hiện tại vào bộ nhớ hài hòa)
-                var newSolutionList = newSolution
-                    .Select(kvp => (Class: kvp.Key, Teacher: kvp.Value))  // Convert to List of Tuples
-                    .ToList();
-
+                // Cập nhật bộ nhớ hòa âm (giải pháp hiện tại vào bộ nhớ hòa âm)
+                var newSolutionList = newSolution;
+                   //.Select(kvp => (Class: kvp.Key, Teacher: kvp.Value))  // Convert to List of Tuples
+                   //.ToList();
                 harmonyMemory = UpdateHarmonyTeaching(harmonyMemory, teachers, classes, newSolutionList);
             }
 
-            // Tìm giải pháp tốt nhất từ bộ nhớ hài hòa
+            // Tìm giải pháp tốt nhất từ bộ nhớ hòa âm
             var bestSolution = harmonyMemory.OrderByDescending(sol => EvaluateSolutionTeaching(sol, teachers, classes)).First();
             var bestScore = EvaluateSolutionTeaching(bestSolution, teachers, classes);
+
+            var teacherScheduleBest = RebuildTeacherSchedules(bestSolution, teachers, classes);
 
             // Convert the best solution (List of Tuples) to a Dictionary
             var bestSolutionDict = bestSolution.ToDictionary(
                 assignment => assignment.Class,
                 assignment => assignment.Teacher
             );
+
+            // Tìm các lớp chưa được phân công
             var unassignedClasses = bestSolutionDict.Where(kvp => kvp.Value == null)
                                                     .Select(kvp => kvp.Key)
                                                     .ToList();
+            bestSolution = ReassignUnassignedClasses(unassignedClasses, bestSolution, teacherScheduleBest, teachers);
 
+            bestSolutionDict = bestSolution.ToDictionary(
+                assignment => assignment.Class,
+                assignment => assignment.Teacher
+            );
+
+            unassignedClasses = bestSolutionDict.Where(kvp => kvp.Value == null)
+                                                    .Select(kvp => kvp.Key)
+                                                    .ToList();
             // Lấy danh sách giảng viên chưa được phân công
             var assignedTeachers = bestSolutionDict.Values.Where(t => t != null).Distinct().ToList();
             var unassignedTeachers = teachers.Where(t => !assignedTeachers.Contains(t)).ToList();
 
             return (bestSolutionDict, bestScore);
+        }
+
+        public static Dictionary<string, List<(string Day, List<int> Periods)>> RebuildTeacherSchedules(
+            List<(ClassInputModel Class, TeacherInputModel? Teacher)> solution,
+            List<TeacherInputModel> teachers,
+            List<ClassInputModel> classes)
+        {
+            var teacherSchedules = teachers.ToDictionary(t => t.Code, t => new List<(string Day, List<int> Periods)>());
+
+            foreach (var (classItem, teacher) in solution)
+            {
+                if (teacher == null) continue;
+                var classInfo = classItem;
+                var teacherData = teacher;
+                foreach (var timeTable in classInfo.TimeTableDetail)
+                {
+                    var day = timeTable.Day;
+                    var period = timeTable.Period.ToList();
+                    teacherSchedules[teacher.Code].Add((day, period));
+                }
+            }
+
+            return teacherSchedules;
+        }
+
+        public static bool IsValidAssignment(
+            TeacherInputModel teacher,
+            ClassInputModel classInfo,
+            List<TeacherInputModel> teachers,
+            Dictionary<string, double> teacherWorkload,
+            Dictionary<string, List<(string Day, List<int> Periods)>> teacherSchedules)
+        {
+            if (teacher == null || classInfo == null) return false;
+
+            // Kiểm tra môn học có nằm trong danh sách các môn mà giáo viên có thể dạy không
+            if (teacher.ListCourse == null ||
+                !teacher.ListCourse.Any(course => course.Name == classInfo.CourseName))
+            {
+                return false;
+            }
+
+            // Kiểm tra nếu tổng giờ giảng dạy vượt quá giới hạn 1.7 lần giờ giảng dạy của giáo viên
+            if (teacher.GdTeaching == null ||
+                teacherWorkload[teacher.Code] + classInfo.GdTeaching > 1.7 * teacher.GdTeaching)
+            {
+                return false;
+            }
+
+            // Kiểm tra trùng lặp lịch dạy
+            if (teacherSchedules.ContainsKey(teacher.Code))
+            {
+                foreach (var timetable in classInfo.TimeTableDetail)
+                {
+                    foreach (var (day, periods) in teacherSchedules[teacher.Code])
+                    {
+                        if (day == timetable.Day && SchedulesOverlap(periods, timetable.Period.ToList()))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public static List<TeacherInputModel> FindValidTeachers(
+            ClassInputModel classInfo,
+            List<TeacherInputModel> sortedTeachers,
+            List<TeacherInputModel> teachers,
+            Dictionary<string, double> teacherWorkload,
+            Dictionary<string, List<(string Day, List<int> Periods)>> teacherSchedules)
+        {
+            var validTeachers = new List<TeacherInputModel>();
+
+            foreach (var teacher in sortedTeachers)
+            {
+                // Kiểm tra các điều kiện hợp lệ
+                if (teacher.ListCourse != null &&
+                    teacher.ListCourse.Any(course => course.Name == classInfo.CourseName) && // Kiểm tra môn học
+                    teacherWorkload.ContainsKey(teacher.Code) &&
+                    teacherWorkload[teacher.Code] + classInfo.GdTeaching <= 1.7 * teacher.GdTeaching && // Kiểm tra giờ dạy
+                    !HasScheduleConflict(teacher, classInfo, teacherSchedules)) // Kiểm tra xung đột lịch dạy
+                {
+                    validTeachers.Add(teacher);
+                }
+            }
+
+            return validTeachers;
+        }
+
+
+        public static bool HasScheduleConflict(
+            TeacherInputModel teacher,
+            ClassInputModel classInfo,
+            Dictionary<string, List<(string Day, List<int> Periods)>> teacherSchedules)
+        {
+            if (teacher == null || classInfo == null || classInfo.TimeTableDetail == null)
+                return false;
+
+            // Duyệt qua từng mục trong TimeTableDetail của lớp học
+            foreach (var timetable in classInfo.TimeTableDetail)
+            {
+                if (teacherSchedules.TryGetValue(teacher.Code, out var schedules))
+                {
+                    // Kiểm tra nếu trùng ngày và có trùng tiết
+                    if (schedules.Any(s => s.Day == timetable.Day && SchedulesOverlap(s.Periods, timetable.Period.ToList())))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public static void AssignTeacherToClass(
+            TeacherInputModel teacher,
+            ClassInputModel classInfo,
+            List<(ClassInputModel Class, TeacherInputModel? Teacher)> solution,
+            Dictionary<string, double> teacherWorkload,
+            Dictionary<string, List<(string Day, List<int> Periods)>> teacherSchedules)
+        {
+            // Thêm giáo viên vào danh sách giải pháp
+            solution.Add((classInfo, teacher));
+
+            // Cập nhật khối lượng công việc của giáo viên
+            if (!teacherWorkload.ContainsKey(teacher.Code))
+            {
+                teacherWorkload[teacher.Code] = 0;
+            }
+            teacherWorkload[teacher.Code] += classInfo.GdTeaching;
+
+            // Cập nhật lịch dạy của giáo viên
+            if (!teacherSchedules.ContainsKey(teacher.Code))
+            {
+                teacherSchedules[teacher.Code] = new List<(string Day, List<int> Periods)>();
+            }
+
+            foreach (var timetable in classInfo.TimeTableDetail)
+            {
+                teacherSchedules[teacher.Code].Add((timetable.Day, timetable.Period.ToList()));
+            }
+        }
+
+        public static List<(ClassInputModel Class, TeacherInputModel? Teacher)> ReassignUnassignedClasses(
+            List<ClassInputModel> unassignedClasses,
+            List<(ClassInputModel Class, TeacherInputModel? Teacher)> solution,
+            Dictionary<string, List<(string Day, List<int> Periods)>> teacherSchedules,
+            List<TeacherInputModel> teachers)
+        {
+            // Tiếp tục phân công cho đến khi không còn lớp chưa được phân công
+            while (unassignedClasses.Count > 0)
+            {
+                bool classAssigned = false;
+
+                // Lưu trữ các lớp đã phân công trong vòng lặp này
+                var assignedClasses = new List<ClassInputModel>();
+
+                foreach (var unassignedClass in unassignedClasses.ToList())
+                {
+                    // Tìm giáo viên phù hợp
+                    var validTeachers = teachers
+                        .Where(teacher =>
+                            !HasScheduleConflict(teacher, unassignedClass, teacherSchedules) &&
+                            (
+                                (solution.All(s => s.Teacher?.Code != teacher.Code) && unassignedClass.GdTeaching <= 1.7 * (teacher.GdTeaching ?? 0)) ||
+                                (solution.Where(s => s.Teacher?.Code == teacher.Code)
+                                         .Sum(s => s.Class.GdTeaching) + unassignedClass.GdTeaching <= 1.7 * (teacher.GdTeaching ?? 0))
+                            )
+                        )
+                        .ToList();
+
+                    if (validTeachers.Any())
+                    {
+                        // Chọn giáo viên có tỷ lệ công việc thấp nhất
+                        var selectedTeacher = validTeachers
+                            .OrderBy(teacher =>
+                                solution.Where(s => s.Teacher?.Code == teacher.Code)
+                                        .Sum(s => s.Class.GdTeaching) / (teacher.GdTeaching ?? 1))
+                            .First();
+
+                        // Kiểm tra lịch của giáo viên trước khi phân công
+                        if (!HasScheduleConflict(selectedTeacher, unassignedClass, teacherSchedules))
+                        {
+                            var classEntry = solution.FirstOrDefault(entry => entry.Class == unassignedClass);
+
+                            if (classEntry != default)
+                            {
+                                // Cập nhật giáo viên cho lớp
+                                var updatedEntry = (classEntry.Class, selectedTeacher);
+                                solution[solution.IndexOf(classEntry)] = updatedEntry;
+                            }
+
+                            // Cập nhật lịch cho giáo viên
+                            if (!teacherSchedules.ContainsKey(selectedTeacher.Code))
+                                teacherSchedules[selectedTeacher.Code] = new List<(string Day, List<int> Periods)>();
+
+                            foreach (var tt in unassignedClass.TimeTableDetail)
+                            {
+                                // Chuyển đổi từ int[] sang List<int>
+                                List<int> periodsList = tt.Period.ToList(); // Giả sử tt.Period là int[]
+                                teacherSchedules[selectedTeacher.Code].Add((tt.Day, periodsList));
+                            }
+
+                            // Đánh dấu lớp đã được phân công
+                            assignedClasses.Add(unassignedClass);
+                            classAssigned = true; // Đã phân công lớp thành công
+                        }
+                    }
+                }
+
+                // Loại bỏ các lớp đã được phân công khỏi danh sách chưa được phân công
+                foreach (var assignedClass in assignedClasses)
+                {
+                    unassignedClasses.Remove(assignedClass);
+                }
+
+                // Nếu không có lớp nào có thể phân công, thoát khỏi vòng lặp
+                if (!classAssigned)
+                    break;
+            }
+
+            return solution;
         }
 
         public async Task<SolutionModel> TeachingAssignment()
@@ -597,7 +838,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                     teacherWorkload[Teacher.Code] += Aspiration.GdInstruct ?? 0.0;
 
                     // Phạt nếu vượt quá giờ
-                    if (teacherWorkload[Teacher.Code] > 1.5 * Teacher.GdInstruct)
+                    if (teacherWorkload[Teacher.Code] > 1.4 * Teacher.GdInstruct)
                     {
                         totalScore -= 10; // Điểm phạt nếu vượt giờ
                     }
@@ -663,7 +904,7 @@ namespace TeachingAssignmentApp.Business.Assignment
 
                         // Kiểm tra điều kiện về giờ và số lượng nguyện vọng
                         if (assignedTeacher != null &&
-                            (teacherWorkload[assignedTeacher.Code] + aspiration.GdInstruct > 1.5 * assignedTeacher.GdInstruct ||
+                            (teacherWorkload[assignedTeacher.Code] + aspiration.GdInstruct > 1.4 * assignedTeacher.GdInstruct ||
                              teacherAssignments[assignedTeacher.Code] > 30))
                         {
                             assignedTeacher = null; // Không thể gán nếu vượt ngưỡng
@@ -679,7 +920,7 @@ namespace TeachingAssignmentApp.Business.Assignment
 
                         // Kiểm tra điều kiện về giờ và số lượng nguyện vọng
                         if (assignedTeacher != null &&
-                            (teacherWorkload[assignedTeacher.Code] + aspiration.GdInstruct > 1.5 * assignedTeacher.GdInstruct ||
+                            (teacherWorkload[assignedTeacher.Code] + aspiration.GdInstruct > 1.4 * assignedTeacher.GdInstruct ||
                              teacherAssignments[assignedTeacher.Code] >= 30))
                         {
                             assignedTeacher = null; // Không thể gán nếu vượt ngưỡng
@@ -760,12 +1001,18 @@ namespace TeachingAssignmentApp.Business.Assignment
                 var newlyAssignedAspirations = new List<AspirationInputModel>();
                 foreach (var aspiration in unassignedAspirations)
                 {
-
-                    var availableTeacher = teacherInfoList.FirstOrDefault(t =>
-                        !bestSolutionDict.ContainsKey(aspiration) ||  // Nếu nguyện vọng chưa được phân công
-                        teacherTotalAssignments[t.Code] < 30 &&  // Kiểm tra xem giảng viên có phân công quá 30 nguyện vọng không
-                        (teacherTotalHours[t.Code] + aspiration.GdInstruct) <= 1.5 * (t.GdInstruct ?? 0)  // Kiểm tra số giờ giảng dạy
-                    );
+                    var availableTeacher = teacherInfoList
+                       .Where(t =>
+                           !bestSolutionDict.ContainsKey(aspiration) || // Nguyện vọng chưa được phân công
+                           teacherTotalAssignments[t.Code] < 30 &&     // Số nguyện vọng phân công chưa vượt quá 30
+                           (teacherTotalHours[t.Code] + aspiration.GdInstruct) <= 1.4 * (t.GdInstruct ?? 0)) // Tổng giờ giảng dạy không vượt quá giới hạn
+                       .OrderBy(t => (teacherTotalHours[t.Code] / (t.GdInstruct ?? 1.0))) // Sắp xếp tăng dần theo tỷ lệ
+                       .FirstOrDefault();
+                    //var availableTeacher = teacherInfoList.FirstOrDefault(t =>
+                    //    !bestSolutionDict.ContainsKey(aspiration) ||  // Nếu nguyện vọng chưa được phân công
+                    //    teacherTotalAssignments[t.Code] < 30 &&  // Kiểm tra xem giảng viên có phân công quá 30 nguyện vọng không
+                    //    (teacherTotalHours[t.Code] + aspiration.GdInstruct) <= 1.4 * (t.GdInstruct ?? 0)  // Kiểm tra số giờ giảng dạy
+                    //);
 
                     if (availableTeacher != null)
                     {

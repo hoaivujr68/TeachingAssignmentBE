@@ -10,5 +10,6 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
         Task UpdateAsync(Data.ProjectAssigment projectAssignment);
         Task DeleteAsync(Guid id);
         Task<Pagination<AspirationModel>> GetProjectNotAssignmentAsync(QueryModel queryModel);
+        Task<byte[]> ExportProjectAssignment();
     }
 }
