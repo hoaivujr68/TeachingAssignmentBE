@@ -94,5 +94,26 @@ namespace TeachingAssignmentApp.Business.Account
             return result;
         }
 
+        public async Task CreateAccountWithRoleAsync()
+        {
+            for (int i = 1; i < 51; i++)
+            {
+                string userName = $"GV{i:000}";
+                var user = new User
+                {
+                    Email = $"teacher{i}@gmail.com",
+                    UserName = userName
+                };
+
+                if ((await _userManager.CreateAsync(user, "Ab@123456")).Succeeded)
+                {
+                    if (!await _roleManager.RoleExistsAsync(userName))
+                        await _roleManager.CreateAsync(new IdentityRole(userName));
+
+                    await _userManager.AddToRoleAsync(user, userName);
+                }
+            }
+        }
+
     }
 }

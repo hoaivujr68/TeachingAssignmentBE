@@ -8,5 +8,6 @@ namespace TeachingAssignmentApp.Business.Account
     {
         Task<SignInResponse> SignInAsync(SignInModel model);
         Task<IdentityResult> SignUpAsync(SignUpModel model);
+        Task CreateAccountWithRoleAsync();
     }
 }

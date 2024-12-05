@@ -8,6 +8,7 @@ using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
 using System.Linq;
+using TeachingAssignmentApp.Business.Teacher;
 
 namespace TeachingAssignmentApp.Business.TeachingAssignment
 {
@@ -15,19 +16,21 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
     {
         private readonly TeachingAssignmentDbContext _context;
         private readonly IClassRepository _classRepository;
+        private readonly ITeacherRepository _teacherRepository;
 
-        public TeachingAssignmentRepository(TeachingAssignmentDbContext context, IClassRepository classRepository)
+        public TeachingAssignmentRepository(TeachingAssignmentDbContext context, IClassRepository classRepository, ITeacherRepository teacherRepository)
         {
             _context = context;
             _classRepository = classRepository;
+            _teacherRepository = teacherRepository;
         }
 
-        public async Task<Pagination<Data.TeachingAssignment>> GetAllAsync(QueryModel queryModel)
+        public async Task<Pagination<Data.TeachingAssignment>> GetAllAsync(QueryModel queryModel, string role)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
 
-            IQueryable<Data.TeachingAssignment> query = BuildQuery(queryModel);
+            IQueryable<Data.TeachingAssignment> query = BuildQuery(queryModel, role);
 
             var result = await query.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);
             return result;
@@ -61,7 +64,34 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
 
             return result;
         }
+        public async Task<Pagination<TeacherModel>> GetTeacherNotAssignmentAsync(QueryModel queryModel)
+        {
+            var queryClassModel = new QueryModel
+            {
+                CurrentPage = 1,
+                PageSize = 200,
+                ListTextSearch = queryModel.ListTextSearch
+            };
 
+            var allClasses = await _teacherRepository.GetAllAsync(queryClassModel);
+
+            var assignedTeacherCodes = await _context.TeachingAssignments
+                                             .Select(t => t.TeacherCode)
+                                             .ToListAsync();
+
+            var teachersNotAssigned = allClasses.Content
+                                                .Where(c => !assignedTeacherCodes.Contains(c.Code))
+                                                .ToList();
+
+            var result = new Pagination<TeacherModel>(
+                teachersNotAssigned,
+                teachersNotAssigned.Count,
+                queryModel.CurrentPage ?? 1,
+                queryModel.PageSize ?? 20
+);
+
+            return result;
+        }
 
         public async Task<Data.TeachingAssignment> GetByIdAsync(Guid id)
         {
@@ -95,11 +125,22 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
             }
         }
 
-        public async Task<byte[]> ExportTeachingAssignment()
+        public async Task<byte[]> ExportTeachingAssignment(string role)
         {
-            var teachingAssignments = await _context.TeachingAssignments
-                                                     .OrderBy(pa => pa.TeacherCode)
-                                                     .ToListAsync();
+            IQueryable<Data.TeachingAssignment> query;
+
+            if (role == "Leader" || role == "admin")
+            {
+                query = _context.TeachingAssignments;
+            }
+            else
+            {
+                // Lọc theo teacherCode khi role không phải Leader hoặc admin
+                query = _context.TeachingAssignments.Where(pa => pa.TeacherCode == role);
+            }
+
+            // Sắp xếp và lấy dữ liệu
+            var teachingAssignments = await query.OrderBy(pa => pa.TeacherCode).ToListAsync();
 
             if (teachingAssignments == null || teachingAssignments.Count == 0)
             {
@@ -195,9 +236,20 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Data.TeachingAssignment> BuildQuery(QueryModel queryModel)
+        private IQueryable<Data.TeachingAssignment> BuildQuery(QueryModel queryModel, string role)
         {
-            IQueryable<Data.TeachingAssignment> query = _context.TeachingAssignments;
+            IQueryable<Data.TeachingAssignment> query;
+
+            // Kiểm tra role
+            if (role == "Leader" || role == "admin")
+            {
+                query = _context.TeachingAssignments;
+            }
+            else
+            {
+                // Lọc theo teacherCode khi role không phải Leader hoặc admin
+                query = _context.TeachingAssignments.Where(p => p.TeacherCode == role);
+            }
 
             var predicate = PredicateBuilder.New<Data.TeachingAssignment>();
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.ProjectAssigment;
 using TeachingAssignmentApp.Business.TeachingAssignment;
@@ -19,28 +20,20 @@ namespace TeachingAssignmentApp.Controllers
             _projectAssignmentRepository = projectAssignmentRepository;
         }
 
-        [HttpGet("assignment")]
-        [Authorize]
-        [ProducesResponseType(typeof(ResponsePagination<ProjectAssigment>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllProjectAssignment(
-            [FromQuery] int page = 1,
-            [FromQuery] int size = 20,
-            [FromQuery] string filter = "{ }")
-        {
-            var filterObject = JsonSerializer.Deserialize<QueryModel>(filter);
-            filterObject.PageSize = size;
-            filterObject.CurrentPage = page;
-            var result = await _projectAssignmentRepository.GetAllAsync(filterObject);
-            return Ok(result);
-        }
-
         [HttpPost("filter-assignment")]
         [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ProjectAssigment>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllProjectAssignment(
             [FromBody] QueryModel queryModel)
         {
-            var result = await _projectAssignmentRepository.GetAllAsync(queryModel);
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == null)
+            {
+                return Unauthorized("Role not found in the request.");
+            }
+
+            var result = await _projectAssignmentRepository.GetAllAsync(queryModel, role);
             return Ok(result);
         }
 
@@ -69,6 +62,16 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+        [HttpPost("teacher-not-assignment")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponsePagination<TeacherModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllTeacherNotAssignment(
+            [FromBody] QueryModel queryModel)
+        {
+            var result = await _projectAssignmentRepository.GetTeacherNotAssignmentAsync(queryModel);
+            return Ok(result);
+        }
+
         [HttpGet("export")]
         [Authorize]
         public async Task<IActionResult> ExportProjectAssignment()
@@ -76,7 +79,13 @@ namespace TeachingAssignmentApp.Controllers
             try
             {
                 // Gọi service để lấy dữ liệu file Excel
-                var fileContent = await _projectAssignmentRepository.ExportProjectAssignment();
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == null)
+                {
+                    return Unauthorized("Role not found in the request.");
+                }
+                var fileContent = await _projectAssignmentRepository.ExportProjectAssignment(role);
                 var fileName = "ProjectAssignmentss.xlsx";
 
                 // Trả về file dưới dạng tải xuống

@@ -39,6 +39,13 @@ namespace MyApiNetCore6.Controllers
 
             return Ok(new { Success = true, Data = signInResponse });
         }
+
+        [HttpGet("create")]
+        public async Task<IActionResult> SignIn()
+        {
+            await _accountRepository.CreateAccountWithRoleAsync();
+            return Ok(new { Success = true, Message = "Account created" });
+        }
     }
 }
 

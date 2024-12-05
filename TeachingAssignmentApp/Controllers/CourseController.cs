@@ -18,21 +18,6 @@ namespace TeachingAssignmentApp.Controllers
             _courseService = courseService;
         }
 
-        [HttpGet]
-        [Authorize]
-        [ProducesResponseType(typeof(ResponsePagination<CourseModel>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllCourses(
-            [FromQuery] int page = 1,
-            [FromQuery] int size = 20,
-            [FromQuery] string filter = "{ }")
-        {
-            var filterObject = JsonSerializer.Deserialize<QueryModel>(filter);
-            filterObject.PageSize = size;
-            filterObject.CurrentPage = page;
-            var result = await _courseService.GetAllAsync(filterObject);
-            return Ok(result);
-        }
-
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetCourseById(Guid id)

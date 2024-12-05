@@ -4,6 +4,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using TeachingAssignmentApp.Business.Aspiration;
 using TeachingAssignmentApp.Business.Class;
+using TeachingAssignmentApp.Business.Teacher;
 using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
@@ -14,20 +15,21 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
     {
         private readonly TeachingAssignmentDbContext _context;
         private readonly IAspirationRepository _aspirationRepository;
-
-        public ProjectAssignmentRepository(TeachingAssignmentDbContext context, IAspirationRepository aspirationRepository)
+        private readonly ITeacherRepository _teacherRepository;
+        public ProjectAssignmentRepository(TeachingAssignmentDbContext context, IAspirationRepository aspirationRepository, ITeacherRepository teacherRepository)
         {
             _context = context;
             _aspirationRepository = aspirationRepository;
+            _teacherRepository = teacherRepository;
         }
 
-        public async Task<Pagination<Data.ProjectAssigment>> GetAllAsync(QueryModel queryModel)
+        public async Task<Pagination<Data.ProjectAssigment>> GetAllAsync(QueryModel queryModel, string role)
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
 
-            IQueryable<Data.ProjectAssigment> query = BuildQuery(queryModel);
-
+            IQueryable<Data.ProjectAssigment> query = BuildQuery(queryModel, role);
+            //var test = Pagination<Data.ProjectAssigment>;
             var result = await query.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);
             return result;
         }
@@ -52,6 +54,35 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
                                                 .ToList();
 
             var result = new Pagination<AspirationModel>(
+                aspirationesNotAssigned,
+                aspirationesNotAssigned.Count,
+                queryModel.CurrentPage ?? 1,
+                queryModel.PageSize ?? 20
+            );
+
+            return result;
+        }
+
+        public async Task<Pagination<TeacherModel>> GetTeacherNotAssignmentAsync(QueryModel queryModel)
+        {
+            var queryProjectModel = new QueryModel
+            {
+                CurrentPage = 1,
+                PageSize = 100,
+                ListTextSearch = queryModel.ListTextSearch
+            };
+
+            var allTeachers = await _teacherRepository.GetAllAsync(queryProjectModel);
+
+            var assignedTeacherCodes = await _context.TeachingAssignments
+                                             .Select(t => t.TeacherCode)
+                                             .ToListAsync();
+
+            var aspirationesNotAssigned = allTeachers.Content
+                                                .Where(c => !assignedTeacherCodes.Contains(c.Code))
+                                                .ToList();
+
+            var result = new Pagination<TeacherModel>(
                 aspirationesNotAssigned,
                 aspirationesNotAssigned.Count,
                 queryModel.CurrentPage ?? 1,
@@ -100,11 +131,22 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
             await _context.SaveChangesAsync();
         }
 
-        public async Task<byte[]> ExportProjectAssignment()
+        public async Task<byte[]> ExportProjectAssignment(string role)
         {
-            var projectAssignments = await _context.ProjectAssigments
-                                                     .OrderBy(pa => pa.TeacherCode)
-                                                     .ToListAsync();
+            IQueryable<Data.ProjectAssigment> query;
+
+            if (role == "Leader" || role == "admin")
+            {
+                query = _context.ProjectAssigments;
+            }
+            else
+            {
+                // Lọc theo teacherCode khi role không phải Leader hoặc admin
+                query = _context.ProjectAssigments.Where(pa => pa.TeacherCode == role);
+            }
+
+            // Sắp xếp và lấy dữ liệu
+            var projectAssignments = await query.OrderBy(pa => pa.TeacherCode).ToListAsync();
 
             if (projectAssignments == null || projectAssignments.Count == 0)
             {
@@ -199,14 +241,25 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
             }
         }
 
-
-        private IQueryable<Data.ProjectAssigment> BuildQuery(QueryModel queryModel)
+        private IQueryable<Data.ProjectAssigment> BuildQuery(QueryModel queryModel, string role)
         {
-            IQueryable<Data.ProjectAssigment> query = _context.ProjectAssigments;
+            IQueryable<Data.ProjectAssigment> query;
 
-            var predicate = PredicateBuilder.New<Data.ProjectAssigment>();
+            // Kiểm tra role
+            if (role == "Leader" || role == "admin")
+            {
+                query = _context.ProjectAssigments;
+            }
+            else
+            {
+                // Lọc theo teacherCode khi role không phải Leader hoặc admin
+                query = _context.ProjectAssigments.Where(p => p.TeacherCode == role);
+            }
+
+            // Xây dựng predicate cho ListTextSearch
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
             {
+                var predicate = PredicateBuilder.New<Data.ProjectAssigment>();
                 foreach (var ts in queryModel.ListTextSearch)
                 {
                     predicate.Or(p =>
@@ -222,5 +275,6 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
 
             return query;
         }
+
     }
 }

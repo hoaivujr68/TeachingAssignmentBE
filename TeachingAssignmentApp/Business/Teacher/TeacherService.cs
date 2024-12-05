@@ -15,9 +15,9 @@ namespace TeachingAssignmentApp.Business.Teacher
             _mapper = mapper;
         }
 
-        public async Task<Pagination<TeacherModel>> GetAllAsync(QueryModel queryModel)
+        public async Task<Pagination<TeacherModel>> GetAllAsync(QueryModel queryModel, string? role = "Leader")
         {
-            return await _teacherRepository.GetAllAsync(queryModel);
+            return await _teacherRepository.GetAllAsync(queryModel, role);
         }
 
         public async Task<TeacherModel> GetByIdAsync(Guid id)

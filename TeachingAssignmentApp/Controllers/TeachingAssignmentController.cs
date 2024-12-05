@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Assignment;
 using TeachingAssignmentApp.Business.TeachingAssignment;
@@ -20,54 +21,39 @@ namespace TeachingAssignmentApp.Controllers
             _teachingAssignmentRepository = teachingAssignmentRepository;
         }
 
-        [HttpGet("assignment")]
-        [Authorize]
-        [ProducesResponseType(typeof(ResponsePagination<TeachingAssignment>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTeachingAssignment(
-            [FromQuery] int page = 1,
-            [FromQuery] int size = 20,
-            [FromQuery] string filter = "{ }")
-        {
-            var filterObject = JsonSerializer.Deserialize<QueryModel>(filter);
-            filterObject.PageSize = size;
-            filterObject.CurrentPage = page;
-            var result = await _teachingAssignmentRepository.GetAllAsync(filterObject);
-            return Ok(result);
-        }
-
         [HttpPost("filter-assignment")]
         [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<TeachingAssignment>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeachingAssignment(
             [FromBody] QueryModel queryModel)
         {
-            var result = await _teachingAssignmentRepository.GetAllAsync(queryModel);
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == null)
+            {
+                return Unauthorized("Role not found in the request.");
+            }
+            var result = await _teachingAssignmentRepository.GetAllAsync(queryModel, role);
             return Ok(result);
         }
-
-        [HttpGet("not-assignment")]
-        [Authorize]
-        [ProducesResponseType(typeof(ResponsePagination<ClassModel>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTeachingNotAssignment(
-            [FromQuery] int page = 1,
-            [FromQuery] int size = 20,
-            [FromQuery] string filter = "{ }")
-        {
-            var filterObject = JsonSerializer.Deserialize<QueryModel>(filter);
-            filterObject.PageSize = size;
-            filterObject.CurrentPage = page;
-            var result = await _teachingAssignmentRepository.GetClassNotAssignmentAsync(filterObject);
-            return Ok(result);
-        }
-
 
         [HttpPost("filter-not-assignment")]
         [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ClassModel>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTeachingNotAssignment(
+        public async Task<IActionResult> GetAllClassNotAssignment(
             [FromBody] QueryModel queryModel)
         {
             var result = await _teachingAssignmentRepository.GetClassNotAssignmentAsync(queryModel);
+            return Ok(result);
+        }
+
+        [HttpPost("teacher-not-assignment")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponsePagination<TeacherModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllTeacherNotAssignment(
+            [FromBody] QueryModel queryModel)
+        {
+            var result = await _teachingAssignmentRepository.GetTeacherNotAssignmentAsync(queryModel);
             return Ok(result);
         }
 
@@ -78,7 +64,13 @@ namespace TeachingAssignmentApp.Controllers
             try
             {
                 // Gọi service để lấy dữ liệu file Excel
-                var fileContent = await _teachingAssignmentRepository.ExportTeachingAssignment();
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == null)
+                {
+                    return Unauthorized("Role not found in the request.");
+                }
+                var fileContent = await _teachingAssignmentRepository.ExportTeachingAssignment(role);
                 var fileName = "TeachingAssignmentss.xlsx";
 
                 // Trả về file dưới dạng tải xuống

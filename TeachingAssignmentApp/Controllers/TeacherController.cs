@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Teacher;
 using TeachingAssignmentApp.Helper;
@@ -18,28 +19,19 @@ namespace TeachingAssignmentApp.Controllers
             _teacherService = teacherService;
         }
 
-        [HttpGet]
-        [Authorize]
-        [ProducesResponseType(typeof(ResponsePagination<TeacherModel>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTeachers(
-            [FromQuery] int page = 1,
-            [FromQuery] int size = 20,
-            [FromQuery] string filter = "{ }")
-        {
-            var filterObject = JsonSerializer.Deserialize<QueryModel>(filter);
-            filterObject.PageSize = size;
-            filterObject.CurrentPage = page;
-            var result = await _teacherService.GetAllAsync(filterObject);
-            return Ok(result);
-        }
-
         [HttpPost("filter")]
         [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<TeacherModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTeachers(
             [FromBody] QueryModel queryModel)
         {
-            var result = await _teacherService.GetAllAsync(queryModel);
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == null)
+            {
+                return Unauthorized("Role not found in the request.");
+            }
+            var result = await _teacherService.GetAllAsync(queryModel, role);
             return Ok(result);
         }
 
@@ -97,7 +89,6 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("import")]
-        [Authorize]
         public async Task<IActionResult> ImportTeachers(IFormFile file)
         {
             try

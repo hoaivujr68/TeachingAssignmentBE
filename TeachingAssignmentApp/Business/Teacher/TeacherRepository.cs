@@ -15,12 +15,12 @@ namespace TeachingAssignmentApp.Business.Teacher
             _context = context;
         }
 
-        public async Task<Pagination<TeacherModel>> GetAllAsync(QueryModel queryModel)
+        public async Task<Pagination<TeacherModel>> GetAllAsync(QueryModel queryModel, string? role = "Leader")
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
 
-            IQueryable<Data.Teacher> query = BuildQuery(queryModel);
+            IQueryable<Data.Teacher> query = BuildQuery(queryModel, role);
             var teacherModelsQuery = query.Select(teacher => new TeacherModel
             {
                 Id = teacher.Id,
@@ -104,11 +104,22 @@ namespace TeachingAssignmentApp.Business.Teacher
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Data.Teacher> BuildQuery(QueryModel queryModel)
+        private IQueryable<Data.Teacher> BuildQuery(QueryModel queryModel, string role)
         {
-            IQueryable<Data.Teacher> query = _context.Teachers
-                .Include(t => t.ListCourse)
+            IQueryable<Data.Teacher> query;
+
+            // Kiểm tra role
+            if (role == "Leader" || role == "admin")
+            {
+                query = _context.Teachers.Include(t => t.ListCourse)
                 .Include(t => t.TeacherProfessionalGroups);
+            }
+            else
+            {
+                // Lọc theo teacherCode khi role không phải Leader hoặc admin
+                query = _context.Teachers.Where(p => p.Code == role).Include(t => t.ListCourse)
+                .Include(t => t.TeacherProfessionalGroups);
+            }
 
             if (!string.IsNullOrEmpty(queryModel.Name))
             {

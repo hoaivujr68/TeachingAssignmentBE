@@ -18,21 +18,6 @@ namespace TeachingAssignmentApp.Controllers
             _aspirationService = aspirationService;
         }
 
-        [HttpGet]
-        [Authorize]
-        [ProducesResponseType(typeof(ResponsePagination<AspirationModel>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllAspirations(
-            [FromQuery] int page = 1,
-            [FromQuery] int size = 20,
-            [FromQuery] string filter = "{ }")
-        {
-            var filterObject = JsonSerializer.Deserialize<QueryModel>(filter);
-            filterObject.PageSize = size;
-            filterObject.CurrentPage = page;
-            var result = await _aspirationService.GetAllAsync(filterObject);
-            return Ok(result);
-        }
-
         [HttpPost("filter")]
         [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<AspirationModel>), StatusCodes.Status200OK)]
@@ -97,7 +82,6 @@ namespace TeachingAssignmentApp.Controllers
         }
 
         [HttpPost("import")]
-        [Authorize]
         public async Task<IActionResult> ImportAspirations(IFormFile file)
         {
             try
