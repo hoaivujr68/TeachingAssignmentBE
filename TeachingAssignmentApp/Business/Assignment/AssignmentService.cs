@@ -409,9 +409,9 @@ namespace TeachingAssignmentApp.Business.Assignment
                 return false;
             }
 
-            // Kiểm tra nếu tổng giờ giảng dạy vượt quá giới hạn 1.7 lần giờ giảng dạy của giáo viên
+            // Kiểm tra nếu tổng giờ giảng dạy vượt quá giới hạn 2 lần giờ giảng dạy của giáo viên
             if (teacher.GdTeaching == null ||
-                teacherWorkload[teacher.Code] + classInfo.GdTeaching > 1.7 * teacher.GdTeaching)
+                teacherWorkload[teacher.Code] + classInfo.GdTeaching > 2 * teacher.GdTeaching)
             {
                 return false;
             }
@@ -449,7 +449,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                 if (teacher.ListCourse != null &&
                     teacher.ListCourse.Any(course => course.Name == classInfo.CourseName) && // Kiểm tra môn học
                     teacherWorkload.ContainsKey(teacher.Code) &&
-                    teacherWorkload[teacher.Code] + classInfo.GdTeaching <= 1.7 * teacher.GdTeaching && // Kiểm tra giờ dạy
+                    teacherWorkload[teacher.Code] + classInfo.GdTeaching <= 2 * teacher.GdTeaching && // Kiểm tra giờ dạy
                     !HasScheduleConflict(teacher, classInfo, teacherSchedules)) // Kiểm tra xung đột lịch dạy
                 {
                     validTeachers.Add(teacher);
@@ -534,9 +534,9 @@ namespace TeachingAssignmentApp.Business.Assignment
                         .Where(teacher =>
                             !HasScheduleConflict(teacher, unassignedClass, teacherSchedules) &&
                             (
-                                (solution.All(s => s.Teacher?.Code != teacher.Code) && unassignedClass.GdTeaching <= 1.7 * (teacher.GdTeaching ?? 0)) ||
+                                (solution.All(s => s.Teacher?.Code != teacher.Code) && unassignedClass.GdTeaching <= 2 * (teacher.GdTeaching ?? 0)) ||
                                 (solution.Where(s => s.Teacher?.Code == teacher.Code)
-                                         .Sum(s => s.Class.GdTeaching) + unassignedClass.GdTeaching <= 1.7 * (teacher.GdTeaching ?? 0))
+                                         .Sum(s => s.Class.GdTeaching) + unassignedClass.GdTeaching <= 2 * (teacher.GdTeaching ?? 0))
                             )
                         )
                         .ToList();
@@ -701,6 +701,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                     Id = Guid.NewGuid(),
                     Name = course.Name,
                     TeacherCode = teacherCode,
+                    TeachingName = teacher.Name,
                     Code = courseCode,
                     GdTeaching = course.GdTeaching,
                     Type = course.Type,

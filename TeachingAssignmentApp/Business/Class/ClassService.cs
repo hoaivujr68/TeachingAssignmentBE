@@ -27,9 +27,9 @@ namespace TeachingAssignmentApp.Business.Class
             _courseRepository = courseRepository;
         }
 
-        public async Task<Pagination<ClassModel>> GetAllAsync(QueryModel queryModel)
+        public async Task<Pagination<ClassModel>> GetAllAsync(QueryModel queryModel, string? role = "lanhdao")
         {
-            return await _classeRepository.GetAllAsync(queryModel);
+            return await _classeRepository.GetAllAsync(queryModel, role);
         }
 
         public async Task<ClassModel> GetByIdAsync(Guid id)

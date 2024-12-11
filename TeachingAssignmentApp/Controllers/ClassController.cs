@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Helper;
@@ -24,7 +25,13 @@ namespace TeachingAssignmentApp.Controllers
         public async Task<IActionResult> GetAllClasses(
             [FromBody] QueryModel queryModel)
         {
-            var result = await _classesService.GetAllAsync(queryModel);
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == null)
+            {
+                return Unauthorized("Role not found in the request.");
+            }
+            var result = await _classesService.GetAllAsync(queryModel, role);
             return Ok(result);
         }
 

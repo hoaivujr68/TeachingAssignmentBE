@@ -37,6 +37,15 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+        [HttpGet("range")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponsePagination<ClassModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetRangeGdTeaching()
+        {
+            var result = await _projectAssignmentRepository.GetRangeGdInstruct();
+            return Ok(result);
+        }
+
         [HttpGet("not-assignment")]
         [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<AspirationModel>), StatusCodes.Status200OK)]
@@ -72,6 +81,35 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+        [HttpPost("teacher-by-student")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponsePagination<TeacherModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTeacherByStudentId(
+    [FromBody] string studentId)
+        {
+            var result = await _projectAssignmentRepository.GetAvailableTeachersForStudentId(studentId);
+            return Ok(result);
+        }
+
+        [HttpPost("total-gd")]
+        [Authorize]
+        public async Task<double> GetTotalGdTeachingByTeacherCode(
+            [FromBody] string teacherCode)
+        {
+            return await _projectAssignmentRepository.GetTotalGdTeachingByTeacherCode(teacherCode);
+        }
+
+        [HttpPut("")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponsePagination<ProjectAssigment>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateProejctAssignment(
+            [FromBody] ProjectAssigment projectAssignment)
+        {
+            var result = await _projectAssignmentRepository.UpdateAsync(projectAssignment.Id, projectAssignment);
+            return Ok(result);
+        }
+
+
         [HttpGet("export")]
         [Authorize]
         public async Task<IActionResult> ExportProjectAssignment()
@@ -87,6 +125,31 @@ namespace TeachingAssignmentApp.Controllers
                 }
                 var fileContent = await _projectAssignmentRepository.ExportProjectAssignment(role);
                 var fileName = "ProjectAssignmentss.xlsx";
+
+                // Trả về file dưới dạng tải xuống
+                return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("export-aspiration")]
+        [Authorize]
+        public async Task<IActionResult> ExportAspirationAssignment()
+        {
+            try
+            {
+                // Gọi service để lấy dữ liệu file Excel
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == null)
+                {
+                    return Unauthorized("Role not found in the request.");
+                }
+                var fileContent = await _projectAssignmentRepository.ExportAspirationAssignment(role);
+                var fileName = "AspirationAssignmentss.xlsx";
 
                 // Trả về file dưới dạng tải xuống
                 return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);

@@ -21,6 +21,8 @@ namespace TeachingAssignmentApp.Data
         public DbSet<TimeTableModel> TimeTableModels { get; set; }
         public DbSet<ETLGeneral> ETLGenerals { get; set; }
         public DbSet<ETLTeacher> ETLTeachers { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<CheckAssignment> CheckAssignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

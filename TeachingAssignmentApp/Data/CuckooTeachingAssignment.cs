@@ -4,8 +4,8 @@ using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Data
 {
-    [Table("TeachingAssignment")]
-    public class TeachingAssignment
+    [Table("CuckooTeachingAssignment")]
+    public class CuckooTeachingAssignment
     {
         [Key]
         public Guid Id { get; set; }
@@ -20,6 +20,5 @@ namespace TeachingAssignmentApp.Data
         public List<TimeTableModel>? TimeTableDetail { get; set; }
         public string? TeacherCode { get; set; }
         public string? TeachingName { get; set; }
-
     }
 }

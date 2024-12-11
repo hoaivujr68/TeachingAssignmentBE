@@ -16,12 +16,12 @@ namespace TeachingAssignmentApp.Business.Class
             _context = context;
         }
 
-        public async Task<Pagination<ClassModel>> GetAllAsync(QueryModel queryModel)
+        public async Task<Pagination<ClassModel>> GetAllAsync(QueryModel queryModel, string? role = "giangvien")
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
 
-            IQueryable<Data.Class> query = BuildQuery(queryModel);
+            IQueryable<Data.Class> query = BuildQuery(queryModel, role);
             var classeModelsQuery = query.Select(classe => new ClassModel
             {
                 Id = classe.Id,
@@ -103,10 +103,36 @@ namespace TeachingAssignmentApp.Business.Class
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Data.Class> BuildQuery(QueryModel queryModel)
+        private IQueryable<Data.Class> BuildQuery(QueryModel queryModel, string? role = "giangvien")
         {
-            IQueryable<Data.Class> query = _context.Classes;
+            IQueryable<Data.Class> query;
 
+            // Kiểm tra role
+            if (role == "lanhdao" || role == "admin")
+            {
+                query = _context.Classes;
+            }
+            else
+            {
+                // Lọc danh sách Class qua liên kết với Teacher có Code = role
+                query = _context.Classes.Where(c =>
+                    _context.Teachers
+                        .Where(t => t.Code == role)
+                        .SelectMany(t => t.ListCourse)
+                        .Any(courseName => courseName.Name == c.CourseName)
+                );
+
+            }
+
+            if (!string.IsNullOrEmpty(queryModel.Name))
+            {
+                query = query.Where(x => x.Name == queryModel.Name);
+            }
+
+            if (!string.IsNullOrEmpty(queryModel.Code))
+            {
+                query = query.Where(x => x.Code == queryModel.Code);
+            }
             var predicate = PredicateBuilder.New<Data.Class>();
             if (queryModel.ListTextSearch != null && queryModel.ListTextSearch.Any())
             {

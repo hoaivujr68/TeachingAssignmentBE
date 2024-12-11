@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeachingAssignmentApp.Data;
 
@@ -11,9 +12,10 @@ using TeachingAssignmentApp.Data;
 namespace TeachingAssignmentApp.Migrations
 {
     [DbContext(typeof(TeachingAssignmentDbContext))]
-    partial class TeachingAssignmentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241207153907_Update-Feedback")]
+    partial class UpdateFeedback
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -203,41 +205,6 @@ namespace TeachingAssignmentApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Aspiration");
-                });
-
-            modelBuilder.Entity("TeachingAssignmentApp.Data.CheckAssignment", b =>
-                {
-                    b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ClassCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClassName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CourseCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("StatusCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TeacherCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TeacherName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CheckAssignments");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.Class", b =>
@@ -540,33 +507,37 @@ namespace TeachingAssignmentApp.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CourseName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("GdTeaching")
+                    b.Property<double>("GdTeaching")
                         .HasColumnType("float");
 
                     b.Property<string>("GroupName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("MaxEnrol")
+                    b.Property<int>("MaxEnrol")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TeacherCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TeachingName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TimeTable")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

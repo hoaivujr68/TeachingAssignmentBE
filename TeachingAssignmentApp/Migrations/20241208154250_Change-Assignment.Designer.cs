@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeachingAssignmentApp.Data;
 
@@ -11,9 +12,10 @@ using TeachingAssignmentApp.Data;
 namespace TeachingAssignmentApp.Migrations
 {
     [DbContext(typeof(TeachingAssignmentDbContext))]
-    partial class TeachingAssignmentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241208154250_Change-Assignment")]
+    partial class ChangeAssignment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -540,33 +542,41 @@ namespace TeachingAssignmentApp.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CourseName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("GdTeaching")
+                    b.Property<double>("GdTeaching")
                         .HasColumnType("float");
 
                     b.Property<string>("GroupName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("MaxEnrol")
+                    b.Property<int>("MaxEnrol")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TeacherCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TeachingName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TimeTable")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

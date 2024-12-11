@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -96,12 +97,29 @@ namespace TeachingAssignmentApp.Business.Account
 
         public async Task CreateAccountWithRoleAsync()
         {
-            for (int i = 1; i < 51; i++)
+            var lanhdao = new User
+            {
+                Email = "lanhdao@gmail.com",
+                UserName = "lanhdao",
+            };
+            await _userManager.CreateAsync(lanhdao, "Ab@123456");
+            await _roleManager.CreateAsync(new IdentityRole("lanhdao"));
+            await _userManager.AddToRoleAsync(lanhdao, "lanhdao");
+            var admin = new User
+            {
+                Email = "admin@gmail.com",
+                UserName = "admin",
+            };
+            await _userManager.CreateAsync(admin, "Ab@123456");
+            await _roleManager.CreateAsync(new IdentityRole("admin"));
+            await _userManager.AddToRoleAsync(admin, "admin");
+
+            for (int i = 2; i < 51; i++)
             {
                 string userName = $"GV{i:000}";
                 var user = new User
                 {
-                    Email = $"teacher{i}@gmail.com",
+                    Email = $"giangvien{i}@gmail.com",
                     UserName = userName
                 };
 

@@ -2,8 +2,8 @@
 {
     public static class AppRole
     {
-        public const string Admin = "Admin";
-        public const string Teacher = "Teacher";
-        public const string Leader = "Leader";
+        public const string Admin = "admin";
+        public const string Teacher = "giangvien";
+        public const string lanhdao = "lanhdao";
     }
 }

@@ -15,7 +15,7 @@ namespace TeachingAssignmentApp.Business.Teacher
             _context = context;
         }
 
-        public async Task<Pagination<TeacherModel>> GetAllAsync(QueryModel queryModel, string? role = "Leader")
+        public async Task<Pagination<TeacherModel>> GetAllAsync(QueryModel queryModel, string? role = "giangvien")
         {
             queryModel.PageSize ??= 20;
             queryModel.CurrentPage ??= 1;
@@ -109,14 +109,14 @@ namespace TeachingAssignmentApp.Business.Teacher
             IQueryable<Data.Teacher> query;
 
             // Kiểm tra role
-            if (role == "Leader" || role == "admin")
+            if (role == "lanhdao" || role == "admin")
             {
                 query = _context.Teachers.Include(t => t.ListCourse)
                 .Include(t => t.TeacherProfessionalGroups);
             }
             else
             {
-                // Lọc theo teacherCode khi role không phải Leader hoặc admin
+                // Lọc theo teacherCode khi role không phải giangvien hoặc admin
                 query = _context.Teachers.Where(p => p.Code == role).Include(t => t.ListCourse)
                 .Include(t => t.TeacherProfessionalGroups);
             }

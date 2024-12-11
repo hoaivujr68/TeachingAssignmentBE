@@ -71,7 +71,7 @@ namespace TeachingAssignmentApp.Business.ETLTeacher
                 new Data.ETLTeacher()
                 {
                     Label = "GD thực tế",
-                    Value = teacherRealTeaching.Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Sum(t => t.GdTeaching ?? 0.0),
                     Category = "GdTeaching",
                     Type = ETLGeneralTypeConstants.TotalGDAnalyzed
                 },
@@ -111,7 +111,7 @@ namespace TeachingAssignmentApp.Business.ETLTeacher
                 new Data.ETLTeacher()
                 {
                     Label = "GD giảng dạy được phân",
-                    Value = teacherRealTeaching.Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Sum(t => t.GdTeaching ?? 0.0),
                     Category = "",
                     Type = ETLGeneralTypeConstants.GDRatioAssigned
                 },
@@ -142,56 +142,56 @@ namespace TeachingAssignmentApp.Business.ETLTeacher
                 new Data.ETLTeacher()
                 {
                     Label = "GD hệ CTTT",
-                    Value = teacherRealTeaching.Where(t => t.GroupName == "CTTT").Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Where(t => t.GroupName == "CTTT").Sum(t => t.GdTeaching ?? 0.0),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PerGdTeaching
                 },
                 new Data.ETLTeacher()
                 {
                     Label = "GD hệ HEDSPI",
-                    Value = teacherRealTeaching.Where(t => t.GroupName == "HEDSPI").Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Where(t => t.GroupName == "HEDSPI").Sum(t => t.GdTeaching ?? 0.0),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PerGdTeaching
                 },
                 new Data.ETLTeacher()
                 {
                     Label = "GD hệ KSCQ",
-                    Value = teacherRealTeaching.Where(t => t.GroupName == "KSCQ").Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Where(t => t.GroupName == "KSCQ").Sum(t => t.GdTeaching ?? 0.0),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PerGdTeaching
                 },
                 new Data.ETLTeacher()
                 {
                     Label = "GD hệ CN",
-                    Value = teacherRealTeaching.Where(t => t.GroupName == "CN").Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Where(t => t.GroupName == "CN").Sum(t => t.GdTeaching ?? 0.0),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PerGdTeaching
                 },
                 new Data.ETLTeacher()
                 {
                     Label = "GD hệ SIE",
-                    Value = teacherRealTeaching.Where(t => t.GroupName == "SIE").Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Where(t => t.GroupName == "SIE").Sum(t => t.GdTeaching ?? 0.0),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PerGdTeaching
                 },
                 new Data.ETLTeacher()
                 {
                     Label = "GD hệ KSTN",
-                    Value = teacherRealTeaching.Where(t => t.GroupName == "KSTN").Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Where(t => t.GroupName == "KSTN").Sum(t => t.GdTeaching ?? 0.0),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PerGdTeaching
                 },
                 new Data.ETLTeacher()
                 {
                     Label = "GD hệ ThSKH",
-                    Value = teacherRealTeaching.Where(t => t.GroupName == "ThSKH").Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Where(t => t.GroupName == "ThSKH").Sum(t => t.GdTeaching ?? 0.0),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PerGdTeaching
                 },
                 new Data.ETLTeacher()
                 {
                     Label = "GD hệ KSCLC",
-                    Value = teacherRealTeaching.Where(t => t.GroupName == "KSCLC").Sum(t => t.GdTeaching),
+                    Value = teacherRealTeaching.Where(t => t.GroupName == "KSCLC").Sum(t => t.GdTeaching ?? 0.0),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PerGdTeaching
                 },
