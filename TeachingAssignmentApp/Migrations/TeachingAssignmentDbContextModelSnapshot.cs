@@ -176,6 +176,9 @@ namespace TeachingAssignmentApp.Migrations
                     b.Property<string>("DesireAccept")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double?>("GdInstruct")
+                        .HasColumnType("float");
+
                     b.Property<string>("GroupName")
                         .HasColumnType("nvarchar(max)");
 
@@ -305,6 +308,100 @@ namespace TeachingAssignmentApp.Migrations
                     b.ToTable("Course");
                 });
 
+            modelBuilder.Entity("TeachingAssignmentApp.Data.CuckooProjectAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Aspiration1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Aspiration2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Aspiration3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClassName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DesireAccept")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("GdInstruct")
+                        .HasColumnType("float");
+
+                    b.Property<string>("GroupName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("StatusCode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TeacherCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TeacherName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Topic")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CuckooProjectAssignment");
+                });
+
+            modelBuilder.Entity("TeachingAssignmentApp.Data.CuckooTeachingAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CourseName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("GdTeaching")
+                        .HasColumnType("float");
+
+                    b.Property<string>("GroupName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MaxEnrol")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TeacherCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TeachingName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TimeTable")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CuckooTeachingAssignment");
+                });
+
             modelBuilder.Entity("TeachingAssignmentApp.Data.ETLGeneral", b =>
                 {
                     b.Property<Guid>("Id")
@@ -431,6 +528,9 @@ namespace TeachingAssignmentApp.Migrations
                     b.Property<string>("StudentName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Topic")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
@@ -490,6 +590,65 @@ namespace TeachingAssignmentApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ProjectAssigment");
+                });
+
+            modelBuilder.Entity("TeachingAssignmentApp.Data.ProjectAssignmentInput", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Aspiration1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Aspiration1Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Aspiration2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Aspiration2Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Aspiration3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Aspiration3Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClassName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DesireAccept")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("GdInstruct")
+                        .HasColumnType("float");
+
+                    b.Property<string>("GroupName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("StatusCode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TeacherCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Topic")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProjectAssignmentInput");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.Teacher", b =>
@@ -652,6 +811,9 @@ namespace TeachingAssignmentApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("CuckooTeachingAssignmentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Day")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -678,6 +840,8 @@ namespace TeachingAssignmentApp.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("CuckooTeachingAssignmentId");
 
                     b.HasIndex("TeachingAssignmentId");
 
@@ -777,12 +941,21 @@ namespace TeachingAssignmentApp.Migrations
                         .WithMany("TimeTableDetail")
                         .HasForeignKey("ClassId");
 
+                    b.HasOne("TeachingAssignmentApp.Data.CuckooTeachingAssignment", null)
+                        .WithMany("TimeTableDetail")
+                        .HasForeignKey("CuckooTeachingAssignmentId");
+
                     b.HasOne("TeachingAssignmentApp.Data.TeachingAssignment", null)
                         .WithMany("TimeTableDetail")
                         .HasForeignKey("TeachingAssignmentId");
                 });
 
             modelBuilder.Entity("TeachingAssignmentApp.Data.Class", b =>
+                {
+                    b.Navigation("TimeTableDetail");
+                });
+
+            modelBuilder.Entity("TeachingAssignmentApp.Data.CuckooTeachingAssignment", b =>
                 {
                     b.Navigation("TimeTableDetail");
                 });

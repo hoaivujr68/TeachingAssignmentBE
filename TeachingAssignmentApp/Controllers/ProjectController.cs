@@ -99,5 +99,23 @@ namespace TeachingAssignmentApp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Success = false, Message = ex.Message });
             }
         }
+
+        [HttpGet("download-template")]
+        public IActionResult DownloadTeacherTemplate()
+        {
+            try
+            {
+                var file = _projectService.DownloadTeacherTemplate();
+                return file;
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(new { Success = false, Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Success = false, Message = ex.Message });
+            }
+        }
     }
 }

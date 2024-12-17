@@ -9,6 +9,10 @@ using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
 using System.Linq;
 using TeachingAssignmentApp.Business.Teacher;
+using TeachingAssignmentApp.Business.TeachingAssignment.Model;
+using DocumentFormat.OpenXml.Spreadsheet;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Text.RegularExpressions;
 
 namespace TeachingAssignmentApp.Business.TeachingAssignment
 {
@@ -262,6 +266,7 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
                 .SumAsync(ta => ta.GdTeaching ?? 0.0);
             var totalGd = await _context.Classes
                 .SumAsync(ta => ta.GdTeaching);
+            totalGd = Math.Round(totalGd, 2);
             return Math.Round(totalGd / totalGdTeaching, 2);
         }
 
@@ -274,6 +279,11 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
                 await _context.SaveChangesAsync();
             }
         }
+
+        //public async Task<byte[]> ExportCheckQuota()
+        //{
+             
+        //}
 
         public async Task<byte[]> ExportTeachingAssignment(string role)
         {
@@ -336,14 +346,15 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
                 worksheet.Cells[1, 13].Value = "Tỷ lệ";
                 worksheet.Cells[1, 14].Value = "Một thời điểm - Một lớp";
                 worksheet.Cells[1, 15].Value = "Đúng chuyên môn";
-                worksheet.Cells[1, 16].Value = "Tổng giờ hướng dẫn - giới hạn";
+                worksheet.Cells[1, 16].Value = "Số giờ phân công thỏa mãn";
                 worksheet.Cells[1, 17].Value = "Giờ giảng dạy cân bằng";
+                worksheet.Cells[1, 18].Value = "Cùng ngày học";
 
                 // Định dạng tiêu đề
-                worksheet.Cells[1, 1, 1, 17].Style.Font.Bold = true;
-                worksheet.Cells[1, 1, 1, 17].Style.Font.Size = 12;
-                worksheet.Cells[1, 1, 1, 17].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                worksheet.Cells[1, 1, 1, 17].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGreen);
+                worksheet.Cells[1, 1, 1, 18].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 18].Style.Font.Size = 12;
+                worksheet.Cells[1, 1, 1, 18].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[1, 1, 1, 18].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGreen);
 
                 int row = 2;
                 foreach (var group in groupedAssignments)
@@ -352,18 +363,70 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
                     worksheet.Cells[row, 1].Value = group.TeacherCode;
                     worksheet.Cells[row, 12].Value = group.TotalGdTeaching;
 
+                    var test = group.Assignments.ToList();
+                    if (test.Any(a => a.TimeTable == "HV liên hệ với giáo viên") || test.Count == 1)
+                    {
+                        worksheet.Cells[row, 18].Value = "Thỏa mãn";
+                    }
+                    else
+                    {
+                        // Danh sách chứa các ngày từ TimeTable
+                        var daysInSchedules = new List<string>();
+
+                        foreach (var assignment in test)
+                        {
+                            var timeTable = assignment.TimeTable;
+
+                            // Tách TimeTable thành các phần, ví dụ: Sáng T5, Chiều T5
+                            var schedules = timeTable.Split(new[] { "Sáng", "Chiều" }, StringSplitOptions.RemoveEmptyEntries);
+
+                            foreach (var schedule in schedules)
+                            {
+                                string session = timeTable.Contains("Sáng" + schedule) ? "Sáng" : "Chiều";
+                                var parts = schedule.Split(',');
+
+                                // Lấy ngày từ phần TimeTable
+                                string day = parts[0].Split('T')[1].Trim().Replace(":", "").Trim();
+
+                                // Thêm ngày vào danh sách
+                                if (!string.IsNullOrEmpty(day))
+                                {
+                                    daysInSchedules.Add(day);
+                                }
+                            }
+                        }
+
+                        // Kiểm tra sự trùng lặp ngày
+                        var duplicateDays = daysInSchedules
+                            .GroupBy(d => d) // Nhóm theo ngày
+                            .Where(g => g.Count() > 1) // Kiểm tra nếu một ngày xuất hiện nhiều lần
+                            .Select(g => g.Key)
+                            .ToList();
+
+                        // Nếu có ngày trùng, gán "Thỏa mãn"
+                        if (duplicateDays.Any())
+                        {
+                            worksheet.Cells[row, 18].Value = "Thỏa mãn";
+                        }
+                        else
+                        {
+                            worksheet.Cells[row, 18].Value = "Không thỏa mãn";
+                        }
+                    }
                     // Tìm GdTeaching của giảng viên trong dictionary
                     if (teacherDictionary.TryGetValue(group.TeacherCode, out var teacherInfo))
                     {
                         worksheet.Cells[row, 2].Value = teacherInfo.Item1;
                         worksheet.Cells[row, 11].Value = teacherInfo.Item2;
                         worksheet.Cells[row, 13].Value = Math.Round((double)(group.TotalGdTeaching) / (double)(teacherInfo.Item2 ?? 0), 2).ToString();
-
+                        var rate = Math.Round((double)(group.TotalGdTeaching) / (double)(teacherInfo.Item2 ?? 0), 2);
+                        if (rate <= 1.6 && rate >= 1.3) worksheet.Cells[row, 17].Value = "Thỏa mãn";
+                        else worksheet.Cells[row, 17].Value = "Không thỏa mãn";
+                        if (rate <= 1.5) worksheet.Cells[row, 16].Value = "Thỏa mãn";
+                        else worksheet.Cells[row, 16].Value = "Không thỏa mãn";
                     }
                     worksheet.Cells[row, 14].Value = "Thỏa mãn";
                     worksheet.Cells[row, 15].Value = "Thỏa mãn";
-                    worksheet.Cells[row, 16].Value = "Thỏa mãn";
-                    worksheet.Cells[row, 17].Value = "Không thỏa mãn";
 
                     // Thêm dữ liệu phân công của từng giảng viên
                     foreach (var assignment in group.Assignments)
@@ -387,6 +450,235 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
                 // Trả về file Excel dưới dạng byte array
                 return package.GetAsByteArray();
             }
+        }
+
+        public async Task<IEnumerable<ResultModel>> GetResultModel()
+        {
+            var teachers = await _context.Teachers.ToListAsync();
+            var classes = await _context.Classes.ToListAsync();
+            var professor = await _context.ProfessionalGroups.ToListAsync();
+
+            var totalGdTeaching = await _context.Teachers
+              .SumAsync(ta => ta.GdTeaching ?? 0.0);
+            var totalGd = await _context.Classes
+                .SumAsync(ta => ta.GdTeaching);
+            totalGd = Math.Round(totalGd, 2);
+            totalGdTeaching = Math.Round(totalGdTeaching, 2);
+            var rateGD = Math.Round(totalGd / totalGdTeaching, 2);
+
+            IQueryable<Data.TeachingAssignment> query = _context.TeachingAssignments;
+
+            var teachingAssignments = await query.OrderBy(pa => pa.TeacherCode).ToListAsync();
+
+            if (teachingAssignments == null || teachingAssignments.Count == 0)
+            {
+                throw new InvalidOperationException("No TeachingAssignments available to export.");
+            }
+            var groupedAssignments = teachingAssignments
+                .GroupBy(pa => pa.TeacherCode)
+                .Select(g => new
+                {
+                    TeacherCode = g.Key,
+                    TotalGdTeaching = g.Sum(pa => pa.GdTeaching),
+                    Assignments = g.ToList()
+                })
+                .OrderBy(g => g.TeacherCode)
+                .ToList();
+
+            // Tạo dictionary để tra cứu GdTeaching của giảng viên nhanh hơn
+            var teacherDictionary = teachers.ToDictionary(
+                t => t.Code,                // Khóa: TeacherCode
+                t => new Tuple<string, double?>(t.Name, t.GdTeaching));
+
+            var teacherCountRB7 = 0;
+            var teacherCountRB8 = 0;
+            var teacherCountRB5 = 0;
+
+            foreach (var group in groupedAssignments)
+            {
+                if (teacherDictionary.TryGetValue(group.TeacherCode, out var teacherInfo))
+                {
+                    var rate = Math.Round((double)(group.TotalGdTeaching) / (double)(teacherInfo.Item2 ?? 0), 2);
+                    if (rate <= 1.5 && rate >= 1.2) teacherCountRB8 += 1;
+                    if (rate <= 1.5) teacherCountRB5 += 1;
+                }
+
+                var test = group.Assignments.ToList();
+                if (test.Any(a => a.TimeTable == "HV liên hệ với giáo viên") || test.Count == 1)
+                {
+                    teacherCountRB7 += 1;
+                    continue;
+                }
+                else
+                {
+                    // Danh sách chứa các ngày từ TimeTable
+                    var daysInSchedules = new List<string>();
+
+                    foreach (var assignment in test)
+                    {
+                        var timeTable = assignment.TimeTable;
+
+                        // Tách TimeTable thành các phần, ví dụ: Sáng T5, Chiều T5
+                        var schedules = timeTable.Split(new[] { "Sáng", "Chiều" }, StringSplitOptions.RemoveEmptyEntries);
+
+                        foreach (var schedule in schedules)
+                        {
+                            string session = timeTable.Contains("Sáng" + schedule) ? "Sáng" : "Chiều";
+                            var parts = schedule.Split(',');
+
+                            // Lấy ngày từ phần TimeTable
+                            string day = parts[0].Split('T')[1].Trim().Replace(":", "").Trim();
+
+                            // Thêm ngày vào danh sách
+                            if (!string.IsNullOrEmpty(day))
+                            {
+                                daysInSchedules.Add(day);
+                            }
+                        }
+                    }
+
+                    // Kiểm tra sự trùng lặp ngày
+                    var duplicateDays = daysInSchedules
+                        .GroupBy(d => d) // Nhóm theo ngày
+                        .Where(g => g.Count() > 1) // Kiểm tra nếu một ngày xuất hiện nhiều lần
+                        .Select(g => g.Key)
+                        .ToList();
+
+                    // Nếu có ngày trùng, gán "Thỏa mãn"
+                    if (duplicateDays.Any())
+                    {
+                        teacherCountRB7 += 1;
+                    }
+                }
+            }
+
+            var result = new List<ResultModel>
+            {
+                new ResultModel
+                {
+                    Label = "Một lớp - Một giáo viên",
+                    Value = classes.Count,
+                    Code = "RB1",
+                    Type = "Table",
+                    Category = "lớp học"
+                },
+                new ResultModel
+                {
+                    Label = "Một thời điểm - Một lớp",
+                    Value = teachers.Count,
+                    Code = "RB2",
+                    Type = "Table",
+                    Category = "giảng viên"
+                },
+                new ResultModel
+                {
+                    Label = "Đúng chuyên môn",
+                    Value = teachers.Count,
+                    Code = "RB3",
+                    Type = "Table",
+                    Category = "giảng viên"
+                },
+                new ResultModel
+                {
+                    Label = "Số giờ phân công thỏa mãn",
+                    Value = teacherCountRB5,
+                    Code = "RB5",
+                    Type = "Table",
+                    Category = "giảng viên"
+                },
+                new ResultModel
+                {
+                    Label = "Cùng ngày học",
+                    Value = teacherCountRB7,
+                    Code = "RB7",
+                    Type = "Table",
+                    Category = "giảng viên"
+                },
+                new ResultModel
+                {
+                    Label = "Giờ giảng dạy cân bằng",
+                    Value = teacherCountRB8,
+                    Code = "RB8",
+                    Type = "Table",
+                    Category = "giảng viên"
+                },
+                 new ResultModel
+                {
+                    Label = "Số giảng viên",
+                    Value = teachers.Count,
+                    Code = "TC",
+                    Type = "Header",
+                    Category = "giảng viên"
+                },
+                  new ResultModel
+                {
+                    Label = "Số lớp",
+                    Value = classes.Count,
+                    Code = "CL",
+                    Type = "Header",
+                    Category = "giảng viên"
+                },
+                   new ResultModel
+                {
+                    Label = "Số nhóm chuyên môn",
+                    Value = professor.Count,
+                    Code = "NCM",
+                    Type = "Header",
+                    Category = "giảng viên"
+                }
+                   ,
+                   new ResultModel
+                {
+                    Label = "Tổng GD giảng viên",
+                    Value = totalGdTeaching,
+                    Code = "totalGdTeaching",
+                    Type = "Header",
+                    Category = "giảng viên"
+                }
+                   ,
+                   new ResultModel
+                {
+                    Label = "Tổng GD lớp học",
+                    Value = totalGd,
+                    Code = "totalGd",
+                    Type = "Header",
+                    Category = "giảng viên"
+                }
+                   ,
+                   new ResultModel
+                {
+                    Label = "Tỷ lệ trung bình",
+                    Value = rateGD,
+                    Code = "rateGD",
+                    Type = "Header",
+                    Category = "giảng viên"
+                }
+            };
+            return result;
+        }
+
+        public async Task SwapTeacherAssignmentAsync(Guid teacherAssignmentId1, Guid teacherAssignmentId2)
+        {
+            var teacherAssignment1 = await _context.TeachingAssignments.FindAsync(teacherAssignmentId1);
+            var teacherAssignment2 = await _context.TeachingAssignments.FindAsync(teacherAssignmentId2);
+
+            if (teacherAssignment1 == null || teacherAssignment2 == null)
+            {
+                throw new InvalidOperationException("One or both teacher assignments could not be found.");
+            }
+
+            // Lưu tạm giá trị của TeacherCode từ teacherAssignment1
+            var tempTeacherCode = teacherAssignment1.TeacherCode;
+            var tempTeacherName = teacherAssignment1.TeachingName;
+
+            // Hoán đổi TeacherCode giữa hai bản ghi
+            teacherAssignment1.TeacherCode = teacherAssignment2.TeacherCode;
+            teacherAssignment1.TeachingName = teacherAssignment2.TeachingName;
+            teacherAssignment2.TeacherCode = tempTeacherCode;
+            teacherAssignment2.TeachingName = tempTeacherName;
+
+            // Lưu các thay đổi vào cơ sở dữ liệu
+            await _context.SaveChangesAsync();
         }
 
         public async Task<byte[]> ExportClassAssignment(string role)
@@ -501,6 +793,80 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
         {
             await _context.TeachingAssignments.AddRangeAsync(teachingAssignments);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<TimeTableResponse>> GetTimeTableByRole(string role)
+        {
+            // Khung giờ tiết học
+            var timeSlotsStart = new Dictionary<int, string>
+    {
+        { 1, "6h45" }, { 2, "7h30" }, { 3, "8h25" }, { 4, "9h20" },
+        { 5, "10h15" }, { 6, "11h00" }, { 7, "12h30" }, { 8, "13h15" },
+        { 9, "14h10" }, { 10, "15h05" }, { 11, "16h00" }, { 12, "16h45" },
+        { 13, "17h45" }, { 14, "18h30" }
+    };
+
+            var timeSlotsEnd = new Dictionary<int, string>
+    {
+        { 1, "7h30" }, { 2, "8h15" }, { 3, "9h10" }, { 4, "10h05" },
+        { 5, "11h00" }, { 6, "11h45" }, { 7, "13h15" }, { 8, "14h00" },
+        { 9, "14h55" }, { 10, "15h50" }, { 11, "16h45" }, { 12, "17h30" },
+        { 13, "18h30" }, { 14, "19h15" }
+    };
+
+            // Lấy thông tin phân công giảng dạy
+            var teachingAssignments = await _context.TeachingAssignments
+                .Where(p => p.TeacherCode == role)
+                .ToListAsync();
+
+            var result = new List<TimeTableResponse>();
+
+            // Xử lý từng phân công
+            foreach (var teachingAssignment in teachingAssignments)
+            {
+                // Tách các dòng trong TimeTable
+                var timetableEntries = teachingAssignment.TimeTable.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var entry in timetableEntries)
+                {
+                    // Sử dụng Regex để tách thông tin
+                    var match = Regex.Match(entry, @"(\S+)\s(T\d+):\sTiết\s(\d+)-(\d+)\s*,\s*Địa\sđiểm:\s([\w\-]+)");
+
+                    if (match.Success)
+                    {
+                        var session = match.Groups[1].Value;   // Sáng, Chiều, Tối
+                        var day = match.Groups[2].Value.Substring(1);   // T2, T3, T6...
+                        var startPeriod = int.Parse(match.Groups[3].Value); // Tiết bắt đầu
+                        var endPeriod = int.Parse(match.Groups[4].Value);   // Tiết kết thúc
+                        var locale = match.Groups[5].Value;   // Địa điểm (D9-201)
+
+                        // Nếu buổi chiều, cộng thêm 6 vào tiết bắt đầu và kết thúc
+                        if (session == "Chiều")
+                        {
+                            startPeriod += 6;
+                            endPeriod += 6;
+                        }
+
+                        // Lấy thời gian từ khung giờ
+                        var startTime = timeSlotsStart[startPeriod];
+                        var endTime = timeSlotsEnd[endPeriod];
+
+                        // Thêm vào danh sách kết quả
+                        result.Add(new TimeTableResponse
+                        {
+                            CourseCode = teachingAssignment.CourseName,
+                            CourseName = teachingAssignment.Name,
+                            CourseId = teachingAssignment.Code,
+                            Day = day,
+                            TimeTable = $"{startTime} - {endTime}",
+                            Locale = locale,
+                            MaxEnrol = teachingAssignment.MaxEnrol,
+                        });
+                    }
+                }
+            }
+
+            return result;
         }
 
         private IQueryable<Data.TeachingAssignment> BuildQuery(QueryModel queryModel, string role)

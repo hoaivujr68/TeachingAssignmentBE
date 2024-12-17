@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using TeachingAssignmentApp.Business.Class;
@@ -123,7 +124,8 @@ namespace TeachingAssignmentApp.Business.Project
                             StudenId = worksheet.Cells[row, 6].Text.Trim(),
                             StudentName = worksheet.Cells[row, 7].Text.Trim(),
                             GroupName = groupName,
-                            GdInstruct = matchingItem.Value
+                            GdInstruct = matchingItem.Value,
+                            Topic = worksheet.Cells[row, 9].Text.Trim()
                         };
 
                         projects.Add(project);
@@ -132,25 +134,27 @@ namespace TeachingAssignmentApp.Business.Project
             }
 
             await _projectRepository.AddRangeAsync(projects);
-            var totalGdTeaching = await _classRepository.GetTotalGdTeachingAsync();
-            var proportion = Math.Round(totalGdInstruct / totalGdTeaching, 2);
-
-            // Lấy danh sách giáo viên từ DbContext
-            var teachers = await _context.Teachers.ToListAsync();
-
-            foreach (var teacher in teachers)
-            {
-                if (teacher.GdTeaching.HasValue)
-                {
-                    teacher.GdInstruct = Math.Round(teacher.GdTeaching.Value * proportion, 2);
-                }
-            }
-
-            // Cập nhật danh sách giáo viên
-            _context.Teachers.UpdateRange(teachers);
-            await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public FileContentResult DownloadTeacherTemplate()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "ProjectTemplate.xlsx");
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("The template file does not exist.");
+            }
+
+            // Đọc file thành byte array
+            var fileBytes = File.ReadAllBytes(filePath);
+
+            // Trả file về dạng FileContentResult
+            return new FileContentResult(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            {
+                FileDownloadName = "ProjectTemplate.xlsx"
+            };
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using TeachingAssignmentApp.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.Teacher
@@ -12,5 +12,7 @@ namespace TeachingAssignmentApp.Business.Teacher
         Task UpdateAsync(TeacherModel teacher);
         Task DeleteAsync(Guid id);
         Task<bool> ImportTeachersAsync(IFormFile file);
+        FileContentResult DownloadTeacherTemplate();
+        Task<bool> ImportTeachersAfterAsync(IFormFile file);
     }
 }

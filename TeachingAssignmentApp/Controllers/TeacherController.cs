@@ -105,5 +105,40 @@ namespace TeachingAssignmentApp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Success = false, Message = ex.Message });
             }
         }
+        [HttpPost("import-data")]
+        public async Task<IActionResult> ImportTeachersAfter(IFormFile file)
+        {
+            try
+            {
+                await _teacherService.ImportTeachersAfterAsync(file);
+                return Ok(new { Success = true, Message = "Teachers imported successfully." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Success = false, Message = ex.Message });
+            }
+        }
+
+        [HttpGet("download-template")]
+        public IActionResult DownloadTeacherTemplate()
+        {
+            try
+            {
+                var file = _teacherService.DownloadTeacherTemplate();
+                return file;
+            }
+            catch (FileNotFoundException ex)
+            {
+                return NotFound(new { Success = false, Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Success = false, Message = ex.Message });
+            }
+        }
     }
 }

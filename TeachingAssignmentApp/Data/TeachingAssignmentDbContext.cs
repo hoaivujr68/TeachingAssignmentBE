@@ -23,6 +23,9 @@ namespace TeachingAssignmentApp.Data
         public DbSet<ETLTeacher> ETLTeachers { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<CheckAssignment> CheckAssignments { get; set; }
+        public DbSet<CuckooTeachingAssignment> CuckooTeachingAssignments { get; set; }
+        public DbSet<CuckooProjectAssignment> CuckooProjectAssignments { get; set; }
+        public DbSet<ProjectAssignmentInput> ProjectAssignmentInputs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -3,16 +3,28 @@
   "WorkspaceRootPath": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\data\\cuckooteachingassignment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\data\\cuckooteachingassignment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\business\\teachingassignment\\teachingassignmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\business\\teachingassignment\\teachingassignmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\data\\teachingassignment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\data\\teachingassignment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\controllers\\projectassignmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\controllers\\projectassignmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\business\\assignment\\assignmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\business\\assignment\\assignmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\business\\projectassigment\\iprojectassignmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\business\\projectassigment\\iprojectassignmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\controllers\\teachingassignmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\controllers\\teachingassignmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\business\\projectassigment\\projectassignmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\business\\projectassigment\\projectassignmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|d:\\do_an_source\\be\\teachingassignmentapp\\teachingassignmentapp\\business\\etlteacher\\teacheretlrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{01004D17-2096-411C-980C-582CB94A8D43}|TeachingAssignmentApp\\TeachingAssignmentApp.csproj|solutionrelative:teachingassignmentapp\\business\\etlteacher\\teacheretlrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,41 +50,80 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "TeachingAssignment.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\TeachingAssignment.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Data\\TeachingAssignment.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\TeachingAssignment.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Data\\TeachingAssignment.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABUAAAAxAAAA",
+              "DocumentIndex": 3,
+              "Title": "TeachingAssignmentController.cs",
+              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Controllers\\TeachingAssignmentController.cs",
+              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Controllers\\TeachingAssignmentController.cs",
+              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Controllers\\TeachingAssignmentController.cs",
+              "RelativeToolTip": "TeachingAssignmentApp\\Controllers\\TeachingAssignmentController.cs",
+              "ViewState": "AQIAAD0AAAAAAAAAAAAAAEIAAAAIAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-11T10:26:08.328Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CuckooTeachingAssignment.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\CuckooTeachingAssignment.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Data\\CuckooTeachingAssignment.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Data\\CuckooTeachingAssignment.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Data\\CuckooTeachingAssignment.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAAuAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-11T10:26:05.302Z",
+              "WhenOpened": "2024-12-17T18:09:22.89Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "AssignmentService.cs",
-              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\Assignment\\AssignmentService.cs",
-              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Business\\Assignment\\AssignmentService.cs",
-              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\Assignment\\AssignmentService.cs",
-              "RelativeToolTip": "TeachingAssignmentApp\\Business\\Assignment\\AssignmentService.cs",
-              "ViewState": "AQIAALoCAAAAAAAAAAAowMICAAAnAAAA",
+              "Title": "IProjectAssignmentRepository.cs",
+              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\ProjectAssigment\\IProjectAssignmentRepository.cs",
+              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Business\\ProjectAssigment\\IProjectAssignmentRepository.cs",
+              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\ProjectAssigment\\IProjectAssignmentRepository.cs",
+              "RelativeToolTip": "TeachingAssignmentApp\\Business\\ProjectAssigment\\IProjectAssignmentRepository.cs",
+              "ViewState": "AQIAAAgAAAAAAAAAAAAQwBQAAAA4AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-11T10:10:50.774Z",
+              "WhenOpened": "2024-12-17T17:59:45.05Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ProjectAssignmentController.cs",
+              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Controllers\\ProjectAssignmentController.cs",
+              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Controllers\\ProjectAssignmentController.cs",
+              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Controllers\\ProjectAssignmentController.cs",
+              "RelativeToolTip": "TeachingAssignmentApp\\Controllers\\ProjectAssignmentController.cs",
+              "ViewState": "AQIAAHwAAAAAAAAAAAAAwIQAAABVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-17T17:38:43.013Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ProjectAssignmentRepository.cs",
+              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\ProjectAssigment\\ProjectAssignmentRepository.cs",
+              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Business\\ProjectAssigment\\ProjectAssignmentRepository.cs",
+              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\ProjectAssigment\\ProjectAssignmentRepository.cs",
+              "RelativeToolTip": "TeachingAssignmentApp\\Business\\ProjectAssigment\\ProjectAssignmentRepository.cs",
+              "ViewState": "AQIAAG8AAAAAAAAAAAAAwHEAAAAVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-17T17:38:33.259Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TeachingAssignmentRepository.cs",
+              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\TeachingAssignment\\TeachingAssignmentRepository.cs",
+              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Business\\TeachingAssignment\\TeachingAssignmentRepository.cs",
+              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\TeachingAssignment\\TeachingAssignmentRepository.cs",
+              "RelativeToolTip": "TeachingAssignmentApp\\Business\\TeachingAssignment\\TeachingAssignmentRepository.cs",
+              "ViewState": "AQIAAOQBAAAAAAAAAADwv/UBAABJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-17T17:21:05.205Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "TeacherETLRepository.cs",
+              "DocumentMoniker": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\ETLTeacher\\TeacherETLRepository.cs",
+              "RelativeDocumentMoniker": "TeachingAssignmentApp\\Business\\ETLTeacher\\TeacherETLRepository.cs",
+              "ToolTip": "D:\\Do_An_Source\\BE\\TeachingAssignmentApp\\TeachingAssignmentApp\\Business\\ETLTeacher\\TeacherETLRepository.cs",
+              "RelativeToolTip": "TeachingAssignmentApp\\Business\\ETLTeacher\\TeacherETLRepository.cs",
+              "ViewState": "AQIAADYAAAAAAAAAAAAmwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-17T17:17:42.252Z",
               "EditorCaption": ""
             }
           ]

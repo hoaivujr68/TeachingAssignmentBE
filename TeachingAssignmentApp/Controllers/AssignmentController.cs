@@ -11,10 +11,12 @@ namespace TeachingAssignmentApp.Controllers
     public class AssignmentController : ControllerBase
     {
         private readonly IAssignmentService _assignmentService;
+        private readonly ICuckooAssignmentService _cuckooAssignmentService;
 
-        public AssignmentController(IAssignmentService teacherAssignmentService)
+        public AssignmentController(IAssignmentService teacherAssignmentService, ICuckooAssignmentService cuckooAssignmentService)
         {
             _assignmentService = teacherAssignmentService;
+            _cuckooAssignmentService = cuckooAssignmentService;
         }
 
         [HttpGet("teachers")]
@@ -52,6 +54,25 @@ namespace TeachingAssignmentApp.Controllers
             try
             {
                 var result = await _assignmentService.TeachingAssignment();
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Success = false, Message = ex.Message });
+            }
+        }
+
+        [HttpGet("cuckoo-teaching")]
+        [ProducesResponseType(typeof(ResponsePagination<SolutionModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> CuckooTeachingAssignment()
+        {
+            try
+            {
+                var result = await _cuckooAssignmentService.TeachingAssignmentCuckooSearch();
                 return Ok(result);
             }
             catch (ArgumentException ex)

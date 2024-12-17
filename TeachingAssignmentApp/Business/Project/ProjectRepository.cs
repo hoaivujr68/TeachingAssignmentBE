@@ -31,7 +31,8 @@ namespace TeachingAssignmentApp.Business.Project
                 StudenId = project.StudenId,
                 StudentName = project.StudentName,
                 GroupName = project.GroupName,
-                GdInstruct = project.GdInstruct
+                GdInstruct = project.GdInstruct,
+                Topic = project.Topic
             });
 
             var result = await projectModelsQuery.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);

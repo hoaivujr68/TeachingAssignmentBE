@@ -9,6 +9,7 @@ using TeachingAssignmentApp.Business.Aspiration;
 using TeachingAssignmentApp.Business.Assignment;
 using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Business.Course;
+using TeachingAssignmentApp.Business.CuckooAssignment;
 using TeachingAssignmentApp.Business.ETLGeneral;
 using TeachingAssignmentApp.Business.ETLTeacher;
 using TeachingAssignmentApp.Business.Feedback;
@@ -90,6 +91,8 @@ builder.Services.AddScoped<IGeneralService, GeneralService>();
 builder.Services.AddScoped<ITeacherETLService, TeacherETLService>();
 builder.Services.AddScoped<ITeacherETLRepository, TeacherETLRepository>();
 builder.Services.AddScoped<IFeedbackReposiotry, FeedbackRepository>();
+builder.Services.AddScoped<ICuckooAssignmentService, CuckooAssignmentService>();
+builder.Services.AddScoped<ICuckooTeachingRepository, CuckooTeachingRepository>();
 
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);

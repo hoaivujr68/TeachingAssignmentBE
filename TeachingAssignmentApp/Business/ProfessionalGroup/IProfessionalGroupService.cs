@@ -1,4 +1,5 @@
-﻿using TeachingAssignmentApp.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.ProfessionalGroup
@@ -11,5 +12,6 @@ namespace TeachingAssignmentApp.Business.ProfessionalGroup
         Task UpdateAsync(ProfessionalGroupModel professionalGroup);
         Task DeleteAsync(Guid id);
         Task<bool> ImportProfessionalGroupsAsync(IFormFile file);
+        FileContentResult DownloadTeacherTemplate();
     }
 }

@@ -37,7 +37,8 @@ namespace TeachingAssignmentApp.Business.Aspiration
                 Aspiration1 = aspiration.Aspiration1,
                 Aspiration2 = aspiration.Aspiration2,
                 Aspiration3 = aspiration.Aspiration3,
-                StatusCode = aspiration.StatusCode
+                StatusCode = aspiration.StatusCode,
+                GdInstruct = aspiration.GdInstruct
                 
             });
             var result = await aspirationModelsQuery.GetPagedOrderAsync(queryModel.CurrentPage.Value, queryModel.PageSize.Value, string.Empty);

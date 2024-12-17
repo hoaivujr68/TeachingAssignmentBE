@@ -1,4 +1,6 @@
-﻿using TeachingAssignmentApp.Model;
+﻿using TeachingAssignmentApp.Business.TeachingAssignment.Model;
+using TeachingAssignmentApp.Data;
+using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.ProjectAssigment
 {
@@ -16,5 +18,11 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
         Task<byte[]> ExportProjectAssignment(string role);
         Task<byte[]> ExportAspirationAssignment(string role);
         Task<double?> GetRangeGdInstruct();
+        Task<IEnumerable<ResultModel>> GetResultAsync();
+        Task AddRangeAsync(IEnumerable<ProjectAssignmentInput> projectAssignments);
+        Task<Data.ProjectAssignmentInput> GetByStudentIdAsync(string studentId);
+        Task<IEnumerable<TeacherResultError>> GetMaxAsync();
+        Task SwapTeacherAssignmentAsync(Guid teacherAssignmentId1, Guid teacherAssignmentId2);
+
     }
 }

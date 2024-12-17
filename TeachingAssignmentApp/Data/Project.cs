@@ -16,6 +16,7 @@ namespace TeachingAssignmentApp.Data
         public string? StudentName { get; set; }
         public string? GroupName { get; set; }
         public double? GdInstruct { get; set; }
+        public string? Topic { get; set; }
 
     }
 }

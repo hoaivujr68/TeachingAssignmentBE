@@ -21,5 +21,6 @@ namespace TeachingAssignmentApp.Data
         public string? Aspiration2 { get; set; }
         public string? Aspiration3 { get; set; }
         public int? StatusCode { get; set; }
+        public double? GdInstruct { get; set; }
     }
 }

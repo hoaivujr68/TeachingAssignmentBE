@@ -162,7 +162,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                         .Where(t =>
                             t.ListCourse != null &&
                             t.ListCourse.Any(course => course.Name == classEntry.CourseName) &&
-                            teacherWorkloads[t.Code] + classEntry.GdTeaching <= 2 * (t.GdTeaching ?? 0)
+                            teacherWorkloads[t.Code] + classEntry.GdTeaching <= 1.5 * (t.GdTeaching ?? 0)
                         )
                         .ToList();
 
@@ -231,7 +231,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                     }
 
                     // Phạt nếu vượt giờ giảng dạy cho phép
-                    if (teacherWorkloads[teacher.Code] > 2 * (teacherData.GdTeaching ?? 0))
+                    if (teacherWorkloads[teacher.Code] > 1.5 * (teacherData.GdTeaching ?? 0))
                     {
                         totalScore -= 10;
                     }
@@ -411,7 +411,7 @@ namespace TeachingAssignmentApp.Business.Assignment
 
             // Kiểm tra nếu tổng giờ giảng dạy vượt quá giới hạn 2 lần giờ giảng dạy của giáo viên
             if (teacher.GdTeaching == null ||
-                teacherWorkload[teacher.Code] + classInfo.GdTeaching > 2 * teacher.GdTeaching)
+                teacherWorkload[teacher.Code] + classInfo.GdTeaching > 1.5 * teacher.GdTeaching)
             {
                 return false;
             }
@@ -449,7 +449,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                 if (teacher.ListCourse != null &&
                     teacher.ListCourse.Any(course => course.Name == classInfo.CourseName) && // Kiểm tra môn học
                     teacherWorkload.ContainsKey(teacher.Code) &&
-                    teacherWorkload[teacher.Code] + classInfo.GdTeaching <= 2 * teacher.GdTeaching && // Kiểm tra giờ dạy
+                    teacherWorkload[teacher.Code] + classInfo.GdTeaching <= 1.5 * teacher.GdTeaching && // Kiểm tra giờ dạy
                     !HasScheduleConflict(teacher, classInfo, teacherSchedules)) // Kiểm tra xung đột lịch dạy
                 {
                     validTeachers.Add(teacher);
@@ -534,9 +534,9 @@ namespace TeachingAssignmentApp.Business.Assignment
                         .Where(teacher =>
                             !HasScheduleConflict(teacher, unassignedClass, teacherSchedules) &&
                             (
-                                (solution.All(s => s.Teacher?.Code != teacher.Code) && unassignedClass.GdTeaching <= 2 * (teacher.GdTeaching ?? 0)) ||
+                                (solution.All(s => s.Teacher?.Code != teacher.Code) && unassignedClass.GdTeaching <= 1.5 * (teacher.GdTeaching ?? 0)) ||
                                 (solution.Where(s => s.Teacher?.Code == teacher.Code)
-                                         .Sum(s => s.Class.GdTeaching) + unassignedClass.GdTeaching <= 2 * (teacher.GdTeaching ?? 0))
+                                         .Sum(s => s.Class.GdTeaching) + unassignedClass.GdTeaching <= 1.5 * (teacher.GdTeaching ?? 0))
                             )
                         )
                         .ToList();
@@ -636,7 +636,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                     var validTeachers = assignedTeachers
                         .Where(teacher =>
                             //teacher.ListCourse.Any(course => course.Name == unassignedClass.CourseName) &&
-                            (teacherTotalHours[teacher.Code] + unassignedClass.GdTeaching) <= 2 * (teacher.GdTeaching ?? 0))
+                            (teacherTotalHours[teacher.Code] + unassignedClass.GdTeaching) <= 1.5 * (teacher.GdTeaching ?? 0))
                         .ToList();
 
                     if (validTeachers.Any())
@@ -717,7 +717,7 @@ namespace TeachingAssignmentApp.Business.Assignment
             await _teachingAssignmentRepository.AddRangeAsync(teachingAssignments);
         }
 
-        public async Task<List<AspirationInputModel>> GetAllAspirationInfo()
+        public async Task<List<ProjectAssignmentInput>> GetAllAspirationInfo()
         {
             var queryProjectModel = new QueryModel();
             queryProjectModel.PageSize = 1500;
@@ -725,16 +725,10 @@ namespace TeachingAssignmentApp.Business.Assignment
 
             var aspirations = await _aspirationRepository.GetAllAsync(queryProjectModel);
 
-            var aspirationInfoList = new List<AspirationInputModel>();
+            var aspirationInfoList = new List<ProjectAssignmentInput>();
 
             foreach (var aspiration in aspirations.Content)
             {
-                var project = await _projectRepository.GetByCourseNameAsync(aspiration.ClassName);
-                if (project == null)
-                {
-                    continue;
-                }
-
                 var teacher1 = await _teacherRepository.GetByNameAsync(aspiration.Aspiration1);
                 if (teacher1 == null)
                 {
@@ -751,7 +745,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                     continue;
                 }
 
-                var aspirationInfo = new AspirationInputModel
+                var aspirationInfo = new ProjectAssignmentInput
                 {
                     TeacherCode = aspiration.TeacherCode,
                     StudentId = aspiration.StudentId,
@@ -765,10 +759,11 @@ namespace TeachingAssignmentApp.Business.Assignment
                     Aspiration2 = aspiration.Aspiration2,
                     Aspiration3 = aspiration.Aspiration3,
                     StatusCode = aspiration.StatusCode,
-                    GdInstruct = project.GdInstruct,
+                    GdInstruct = aspiration.GdInstruct,
                     Aspiration1Code = teacher1?.Code,
                     Aspiration2Code = teacher2?.Code,
                     Aspiration3Code = teacher3?.Code,
+                    Id = aspiration.Id
                 };
 
                 aspirationInfoList.Add(aspirationInfo);
@@ -779,13 +774,39 @@ namespace TeachingAssignmentApp.Business.Assignment
                 .Select(g => g.First())          // Lấy phần tử đầu tiên trong mỗi nhóm
                 .ToList();
 
+            var projects = _context.Projects.ToList();
+            var count = 0;
+            foreach (var project in projects)
+            {
+                var studentId = project.StudenId;
+                var aspiration = aspirationInfoList.FirstOrDefault(a => a.StudentId == studentId && a.ClassName == project.CourseName);
+                
+                if (aspiration != null)
+                {
+                    count += 1;
+                    continue;
+                }
+                var aspirationInfo = new ProjectAssignmentInput
+                {
+                    StudentId = project.StudenId,
+                    StudentName = project.StudentName,
+                    Topic = project.Topic,
+                    ClassName = project.CourseName,
+                    GroupName = project.GroupName,
+                    GdInstruct = project.GdInstruct,
+                    Id = project.Id
+                };
+
+                aspirationInfoList.Add(aspirationInfo);
+            }
+            await _projectAssignmentRepository.AddRangeAsync(aspirationInfoList);
             return aspirationInfoList;
         }
 
-        public static List<List<(AspirationInputModel Aspiration, TeacherInputModel? Teacher)>> InitializeHarmonyMemory(
-            List<TeacherInputModel> teachers, List<AspirationInputModel> aspirations, int memorySize)
+        public static List<List<(ProjectAssignmentInput Aspiration, TeacherInputModel? Teacher)>> InitializeHarmonyMemory(
+            List<TeacherInputModel> teachers, List<ProjectAssignmentInput> aspirations, int memorySize)
         {
-            var harmonyMemory = new List<List<(AspirationInputModel Aspiration, TeacherInputModel? Teacher)>>();
+            var harmonyMemory = new List<List<(ProjectAssignmentInput Aspiration, TeacherInputModel? Teacher)>>();
             var random = new Random();
             var lockedAssignments = new Dictionary<string, string>();
 
@@ -800,7 +821,7 @@ namespace TeachingAssignmentApp.Business.Assignment
 
             for (int i = 0; i < memorySize; i++)
             {
-                var solution = new List<(AspirationInputModel Aspiration, TeacherInputModel? Teacher)>();
+                var solution = new List<(ProjectAssignmentInput Aspiration, TeacherInputModel? Teacher)>();
                 foreach (var aspiration in aspirations)
                 {
                     if (lockedAssignments.TryGetValue(aspiration.StudentId, out var lockedTeacherCode))
@@ -826,7 +847,7 @@ namespace TeachingAssignmentApp.Business.Assignment
         }
 
         public static int EvaluateSolution(
-            List<(AspirationInputModel Aspiration, TeacherInputModel? Teacher)> solution,
+            List<(ProjectAssignmentInput Aspiration, TeacherInputModel? Teacher)> solution,
             List<TeacherInputModel> teachers)
         {
             int totalScore = 0;
@@ -839,7 +860,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                     teacherWorkload[Teacher.Code] += Aspiration.GdInstruct ?? 0.0;
 
                     // Phạt nếu vượt quá giờ
-                    if (teacherWorkload[Teacher.Code] > 1.4 * Teacher.GdInstruct)
+                    if (teacherWorkload[Teacher.Code] > 1.5 * Teacher.GdInstruct)
                     {
                         totalScore -= 10; // Điểm phạt nếu vượt giờ
                     }
@@ -854,9 +875,9 @@ namespace TeachingAssignmentApp.Business.Assignment
         }
 
         public static void UpdateHarmony(
-            List<List<(AspirationInputModel Aspiration, TeacherInputModel? Teacher)>> harmonyMemory,
+            List<List<(ProjectAssignmentInput Aspiration, TeacherInputModel? Teacher)>> harmonyMemory,
             List<TeacherInputModel> teachers,
-            List<(AspirationInputModel Aspiration, TeacherInputModel? Teacher)> newSolution)
+            List<(ProjectAssignmentInput Aspiration, TeacherInputModel? Teacher)> newSolution)
         {
             var worstSolution = harmonyMemory
                 .OrderBy(sol => EvaluateSolution(sol, teachers))
@@ -872,10 +893,10 @@ namespace TeachingAssignmentApp.Business.Assignment
             }
         }
 
-        public static (Dictionary<AspirationInputModel, TeacherInputModel>, int)
+        public static (Dictionary<ProjectAssignmentInput, TeacherInputModel>, int)
             HarmonySearchAlgorithm(
                 List<TeacherInputModel> teachers,
-                List<AspirationInputModel> aspirations,
+                List<ProjectAssignmentInput> aspirations,
                 int memorySize = 100,
                 int maxIterations = 1000,
                 double hmcr = 0.9,
@@ -892,7 +913,7 @@ namespace TeachingAssignmentApp.Business.Assignment
 
             for (int iteration = 0; iteration < maxIterations; iteration++)
             {
-                var newSolution = new List<(AspirationInputModel Aspiration, TeacherInputModel? Teacher)>();
+                var newSolution = new List<(ProjectAssignmentInput Aspiration, TeacherInputModel? Teacher)>();
 
                 foreach (var aspiration in aspirations)
                 {
@@ -905,24 +926,36 @@ namespace TeachingAssignmentApp.Business.Assignment
 
                         // Kiểm tra điều kiện về giờ và số lượng nguyện vọng
                         if (assignedTeacher != null &&
-                            (teacherWorkload[assignedTeacher.Code] + aspiration.GdInstruct > 1.4 * assignedTeacher.GdInstruct ||
-                             teacherAssignments[assignedTeacher.Code] > 30))
+                            (teacherWorkload[assignedTeacher.Code] + aspiration.GdInstruct > 1.5 * assignedTeacher.GdInstruct
+                              || teacherAssignments[assignedTeacher.Code] > 35
+                              ))
                         {
                             assignedTeacher = null; // Không thể gán nếu vượt ngưỡng
                         }
                     }
                     else
                     {
-                        // Chọn ngẫu nhiên từ bộ nhớ hài hòa
                         var randomSolution = harmonyMemory[random.Next(harmonyMemory.Count)];
-                        assignedTeacher = randomSolution
-                            .FirstOrDefault(sol => sol.Aspiration.StudentId == aspiration.StudentId)
-                            .Teacher;
+
+                        // Lọc ra các giáo viên thỏa mãn điều kiện
+                        var eligibleTeachers = randomSolution
+                            .Where(sol => sol.Aspiration.StudentId == aspiration.StudentId
+                                          && sol.Teacher != null
+                                          && (teacherWorkload[sol.Teacher.Code] + aspiration.GdInstruct <= 1.5 * sol.Teacher.GdInstruct)
+                                          && teacherAssignments[sol.Teacher.Code] < 35
+                                          )
+                            .Select(sol => sol.Teacher);
+
+                        // Chọn giáo viên có tỷ lệ workload/GdInstruct nhỏ nhất
+                        assignedTeacher = eligibleTeachers
+                            .OrderBy(teacher => teacherWorkload[teacher.Code] / teacher.GdInstruct)
+                            .FirstOrDefault();
 
                         // Kiểm tra điều kiện về giờ và số lượng nguyện vọng
                         if (assignedTeacher != null &&
-                            (teacherWorkload[assignedTeacher.Code] + aspiration.GdInstruct > 1.4 * assignedTeacher.GdInstruct ||
-                             teacherAssignments[assignedTeacher.Code] >= 30))
+                            (teacherWorkload[assignedTeacher.Code] + aspiration.GdInstruct > 1.5 * assignedTeacher.GdInstruct 
+                             || teacherAssignments[assignedTeacher.Code] >= 35
+                             ))
                         {
                             assignedTeacher = null; // Không thể gán nếu vượt ngưỡng
                         }
@@ -974,6 +1007,10 @@ namespace TeachingAssignmentApp.Business.Assignment
             _context.ProjectAssigments.RemoveRange(projectAssigments);
             await _context.SaveChangesAsync(); // Save changes after removing assignments
 
+            var projectAssignmentInputs = await _context.ProjectAssignmentInputs.ToListAsync();
+            _context.ProjectAssignmentInputs.RemoveRange(projectAssignmentInputs);
+            await _context.SaveChangesAsync();
+
             var aspirationInfoList = await GetAllAspirationInfo();
             var teacherInfoList = await GetAllTeacherInfo();
 
@@ -984,7 +1021,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                                                     .Select(kvp => kvp.Key)
                                                     .ToList();
             var assignedTeachers = bestSolutionDict.Values.Where(t => t != null).Distinct().ToList();
-            var unassignedTeachers = teacherInfoList.Where(t => !assignedTeachers.Contains(t)).ToList();
+            //var unassignedTeachers = teacherInfoList.Where(t => !assignedTeachers.Contains(t)).ToList();
             var teacherTotalHours = assignedTeachers.ToDictionary(teacher => teacher.Code, teacher =>
             {
                 // Tính tổng số giờ đã được phân công cho giảng viên này từ bestSolutionDict
@@ -994,26 +1031,27 @@ namespace TeachingAssignmentApp.Business.Assignment
             });
             var teacherTotalAssignments = teacherInfoList.ToDictionary(teacher => teacher.Code, teacher =>
             {
-                return bestSolutionDict
+                return bestSolutionDict 
                     .Count(kvp => kvp.Value?.Code == teacher.Code);  // Đếm số nguyện vọng đã phân công cho giảng viên
             });
             while (unassignedAspirations.Any())
             {
-                var newlyAssignedAspirations = new List<AspirationInputModel>();
+                var newlyAssignedAspirations = new List<ProjectAssignmentInput>();
                 foreach (var aspiration in unassignedAspirations)
                 {
-                    var availableTeacher = teacherInfoList
-                       .Where(t =>
-                           !bestSolutionDict.ContainsKey(aspiration) || // Nguyện vọng chưa được phân công
-                           teacherTotalAssignments[t.Code] < 30 &&     // Số nguyện vọng phân công chưa vượt quá 30
-                           (teacherTotalHours[t.Code] + aspiration.GdInstruct) <= 1.4 * (t.GdInstruct ?? 0)) // Tổng giờ giảng dạy không vượt quá giới hạn
-                       .OrderBy(t => (teacherTotalHours[t.Code] / (t.GdInstruct ?? 1.0))) // Sắp xếp tăng dần theo tỷ lệ
-                       .FirstOrDefault();
-                    //var availableTeacher = teacherInfoList.FirstOrDefault(t =>
-                    //    !bestSolutionDict.ContainsKey(aspiration) ||  // Nếu nguyện vọng chưa được phân công
-                    //    teacherTotalAssignments[t.Code] < 30 &&  // Kiểm tra xem giảng viên có phân công quá 30 nguyện vọng không
-                    //    (teacherTotalHours[t.Code] + aspiration.GdInstruct) <= 1.4 * (t.GdInstruct ?? 0)  // Kiểm tra số giờ giảng dạy
-                    //);
+                    //var availableTeacher = teacherInfoList
+                    //   .Where(t =>
+                    //       !bestSolutionDict.ContainsKey(aspiration) || // Nguyện vọng chưa được phân công
+                    //       teacherTotalAssignments[t.Code] < 30 &&     // Số nguyện vọng phân công chưa vượt quá 30
+                    //       (teacherTotalHours[t.Code] + aspiration.GdInstruct) <= 2 * (t.GdInstruct ?? 0)) // Tổng giờ giảng dạy không vượt quá giới hạn
+                    //   .OrderBy(t => (teacherTotalHours[t.Code] / (t.GdInstruct ?? 1.0))) // Sắp xếp tăng dần theo tỷ lệ
+                    //   .FirstOrDefault();
+                    var availableTeacher = teacherInfoList.FirstOrDefault(t =>
+                        //!bestSolutionDict.ContainsKey(aspiration) ||
+                        teacherTotalAssignments[t.Code] < 35
+                        &&
+                        (teacherTotalHours[t.Code] + aspiration.GdInstruct) <= 1.5 * (t.GdInstruct ?? 0)  // Kiểm tra số giờ giảng dạy
+                    );
 
                     if (availableTeacher != null)
                     {
@@ -1070,15 +1108,10 @@ namespace TeachingAssignmentApp.Business.Assignment
                     continue;
                 }
 
-                var aspiration = await _aspirationRepository.GetByStudentIdAsync(studenId);
+                var aspiration = await _projectAssignmentRepository.GetByStudentIdAsync(studenId);
                 if (aspiration == null)
                 {
                     throw new Exception($"Course with code {studenId} not found");
-                }
-                var project = await _projectRepository.GetByCourseNameAsync(aspiration.ClassName);
-                if (project == null)
-                {
-                    continue;
                 }
 
                 var assignment = new Data.ProjectAssigment
@@ -1095,7 +1128,7 @@ namespace TeachingAssignmentApp.Business.Assignment
                     Aspiration1 = aspiration.Aspiration1,
                     Aspiration2 = aspiration.Aspiration2,
                     Aspiration3 = aspiration.Aspiration3,
-                    GdInstruct = project.GdInstruct,
+                    GdInstruct = aspiration.GdInstruct,
                     StatusCode = aspiration.StatusCode,
                     TeacherName = teacher.Name
                 };

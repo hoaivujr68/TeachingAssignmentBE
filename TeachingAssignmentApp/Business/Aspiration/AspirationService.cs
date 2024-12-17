@@ -1,8 +1,13 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using TeachingAssignmentApp.Business.Aspiration;
+using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Business.Project;
 using TeachingAssignmentApp.Business.Teacher;
+using TeachingAssignmentApp.Data;
+using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.Aspiration
@@ -12,18 +17,26 @@ namespace TeachingAssignmentApp.Business.Aspiration
         private readonly IAspirationRepository _aspirationRepository;
         private readonly ITeacherRepository _teacherRepository;
         private readonly IMapper _mapper;
+        private readonly IProjectService _projectService;
+        private readonly TeachingAssignmentDbContext _context;
+        private readonly IClassRepository _classRepository;
         private readonly IProjectRepository _projectRepository;
-
         public AspirationService(
             IAspirationRepository aspirationRepository, 
             IMapper mapper, 
             ITeacherRepository teacherRepository,
+            IProjectService projectService,
+            IClassRepository classRepository,
+            TeachingAssignmentDbContext context,
             IProjectRepository projectRepository
             )
         {
             _aspirationRepository = aspirationRepository;
             _mapper = mapper;
             _teacherRepository = teacherRepository;
+            _projectService = projectService;
+            _classRepository = classRepository;
+            _context = context;
             _projectRepository = projectRepository;
         }
 
@@ -103,8 +116,8 @@ namespace TeachingAssignmentApp.Business.Aspiration
                             continue;
                         }
 
-                        var className = worksheet.Cells[row, 8].Text.Trim();
-                        var project = await _projectRepository.GetByCourseNameAsync(className);
+                        var studentId = worksheet.Cells[row, 2].Text.Trim();
+                        var project = await _projectRepository.GetByStudentIdAsync(studentId);
                         if (project == null)
                         {
                             continue;
@@ -123,6 +136,14 @@ namespace TeachingAssignmentApp.Business.Aspiration
                             teacherName = teacher?.Name;
                             teacherCode = teacher?.Code;
                         }
+
+                        var matchingItem = ProjectHourEnum.Items
+                            .FirstOrDefault(item => item.Name == worksheet.Cells[row, 8].Text.Trim() && item.Type == worksheet.Cells[row, 6].Text.Trim());
+                        if (matchingItem == null)
+                        {
+                            continue;
+                        }
+
                         var aspiration = new Data.Aspiration
                         {
                             Id = Guid.NewGuid(),
@@ -138,7 +159,8 @@ namespace TeachingAssignmentApp.Business.Aspiration
                             Aspiration1 = worksheet.Cells[row, 17].Text.Trim(),
                             Aspiration2 = worksheet.Cells[row, 18].Text.Trim(),
                             Aspiration3 = worksheet.Cells[row, 19].Text.Trim(),
-                            StatusCode = desireAccept == "Chờ xác nhận" ? 0 : 1
+                            StatusCode = desireAccept == "Chờ xác nhận" ? 0 : 1,
+                            GdInstruct = matchingItem.Value
                         };
 
                         aspirations.Add(aspiration);
@@ -147,8 +169,47 @@ namespace TeachingAssignmentApp.Business.Aspiration
                 }
             }
 
-            await _aspirationRepository.AddRangeAsync(aspirations);
+            await _aspirationRepository.AddRangeAsync(aspirations); 
+            var totalGdTeaching = await _classRepository.GetTotalGdTeachingAsync();
+            var totalGdInstruct = aspirations.Sum(a => a.GdInstruct);
+            var test = await _projectService.GetTotalGdInstruct();
+            totalGdInstruct += test;
+            var proportion = Math.Round((totalGdInstruct ?? 0) / totalGdTeaching, 2);
+
+            // Lấy danh sách giáo viên từ DbContext
+            var teachers = await _context.Teachers.ToListAsync();
+
+            foreach (var teacher in teachers)
+            {
+                if (teacher.GdTeaching.HasValue)
+                {
+                    teacher.GdInstruct = Math.Round(teacher.GdTeaching.Value * proportion, 2);
+                }
+            }
+
+            // Cập nhật danh sách giáo viên
+            _context.Teachers.UpdateRange(teachers);
+            await _context.SaveChangesAsync();
             return true;
+        }
+
+        public FileContentResult DownloadTeacherTemplate()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "AspirationTemplate.xlsx");
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("The template file does not exist.");
+            }
+
+            // Đọc file thành byte array
+            var fileBytes = File.ReadAllBytes(filePath);
+
+            // Trả file về dạng FileContentResult
+            return new FileContentResult(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            {
+                FileDownloadName = "AspirationTemplate.xlsx"
+            };
         }
     }
 }

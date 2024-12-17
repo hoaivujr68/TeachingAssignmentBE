@@ -104,6 +104,18 @@ namespace TeachingAssignmentApp.Business.Teacher
             await _context.SaveChangesAsync();
         }
 
+        public async Task UpdateRangeGdTeachingAsync(IEnumerable<Data.Teacher> teachers)
+        {
+            foreach (var teacher in teachers)
+            {
+                // Chỉ đánh dấu GdTeaching là Modified
+                _context.Entry(teacher).Property(t => t.GdTeaching).IsModified = true;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+
         private IQueryable<Data.Teacher> BuildQuery(QueryModel queryModel, string role)
         {
             IQueryable<Data.Teacher> query;

@@ -1,4 +1,5 @@
-﻿using TeachingAssignmentApp.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.Project
@@ -13,5 +14,6 @@ namespace TeachingAssignmentApp.Business.Project
         Task<double> GetTotalGdInstruct();
         Task DeleteAsync(Guid id);
         Task<bool> ImportProjectsAsync(IFormFile file);
+        FileContentResult DownloadTeacherTemplate();
     }
 }

@@ -14,5 +14,6 @@ namespace TeachingAssignmentApp.Business.Teacher
         Task DeleteAsync(Guid id);
         Task UpdateRangeAsync(IEnumerable<Data.Teacher> teachers);
         Task AddRangeAsync(IEnumerable<Data.Teacher> teachers);
+        Task UpdateRangeGdTeachingAsync(IEnumerable<Data.Teacher> teachers);
     }
 }

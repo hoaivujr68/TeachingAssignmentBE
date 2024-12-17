@@ -1,4 +1,5 @@
 ﻿using TeachingAssignmentApp.Business.Assignment.Model;
+using TeachingAssignmentApp.Data;
 
 namespace TeachingAssignmentApp.Business.Assignment
 {
@@ -6,7 +7,7 @@ namespace TeachingAssignmentApp.Business.Assignment
     {
         Task<List<TeacherInputModel>> GetAllTeacherInfo();
         Task<List<ClassInputModel>> GetAllClassInfo();
-        Task<List<AspirationInputModel>> GetAllAspirationInfo();
+        Task<List<ProjectAssignmentInput>> GetAllAspirationInfo();
         Task<SolutionModel> TeachingAssignment();
         Task<SolutionProjectModel> ProjectAssignment();
     }

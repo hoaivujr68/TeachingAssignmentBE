@@ -1,4 +1,6 @@
-﻿using TeachingAssignmentApp.Model;
+﻿using TeachingAssignmentApp.Business.TeachingAssignment.Model;
+using TeachingAssignmentApp.Data;
+using TeachingAssignmentApp.Model;
 
 namespace TeachingAssignmentApp.Business.TeachingAssignment
 {
@@ -16,5 +18,8 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
         Task<byte[]> ExportTeachingAssignment(string role);
         Task<byte[]> ExportClassAssignment(string role);
         Task<double?> GetRangeGdTeaching();
+        Task<IEnumerable<ResultModel>> GetResultModel();
+        Task<IEnumerable<TimeTableResponse>> GetTimeTableByRole(string role);
+        Task SwapTeacherAssignmentAsync(Guid teacherAssignmentId1, Guid teacherAssignmentId2);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using TeachingAssignmentApp.Business.Course;
 using TeachingAssignmentApp.Business.ProfessionalGroup;
@@ -178,6 +179,25 @@ namespace TeachingAssignmentApp.Business.Class
 
             await _classeRepository.AddRangeAsync(classes);
             return true;
+        }
+
+        public FileContentResult DownloadTeacherTemplate()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "ClassTemplate.xlsx");
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("The template file does not exist.");
+            }
+
+            // Đọc file thành byte array
+            var fileBytes = File.ReadAllBytes(filePath);
+
+            // Trả file về dạng FileContentResult
+            return new FileContentResult(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            {
+                FileDownloadName = "ClassTemplate.xlsx"
+            };
         }
     }
 }

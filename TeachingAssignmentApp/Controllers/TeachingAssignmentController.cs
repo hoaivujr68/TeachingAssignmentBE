@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using TeachingAssignmentApp.Business.Assignment;
 using TeachingAssignmentApp.Business.TeachingAssignment;
+using TeachingAssignmentApp.Business.TeachingAssignment.Model;
 using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
@@ -37,6 +38,22 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+
+        [HttpGet("schedule")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponsePagination<TeachingAssignment>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetScheduleByRole()
+        {
+            var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == null)
+            {
+                return Unauthorized("Role not found in the request.");
+            }
+            var result = await _teachingAssignmentRepository.GetTimeTableByRole(role);
+            return Ok(result);
+        }
+
         [HttpPost("filter-not-assignment")]
         [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ClassModel>), StatusCodes.Status200OK)]
@@ -47,12 +64,56 @@ namespace TeachingAssignmentApp.Controllers
             return Ok(result);
         }
 
+        [HttpPost("swap-assignment")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponsePagination<>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> SwapTeacherAssignmentAsync([FromBody] SwapModel swapModel)
+        {
+            // Kiểm tra đầu vào
+            if (swapModel?.TeacherAssignmentIds == null || swapModel.TeacherAssignmentIds.Length != 2)
+            {
+                return BadRequest("Invalid input. Exactly two assignment IDs are required.");
+            }
+
+            try
+            {
+                // Lấy ID từ model
+                var teacherAssignmentId1 = Guid.Parse(swapModel.TeacherAssignmentIds[0]);
+                var teacherAssignmentId2 = Guid.Parse(swapModel.TeacherAssignmentIds[1]);
+
+                // Gọi hàm xử lý hoán đổi
+                await _teachingAssignmentRepository.SwapTeacherAssignmentAsync(teacherAssignmentId1, teacherAssignmentId2);
+
+                return Ok(new { message = "Teacher assignments swapped successfully." });
+            }
+            catch (FormatException ex)
+            {
+                // Xử lý lỗi khi không thể parse GUID
+                return BadRequest($"Invalid ID format: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi chung
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred: {ex.Message}");
+            }
+        }
+
         [HttpGet("range")]
         [Authorize]
         [ProducesResponseType(typeof(ResponsePagination<ClassModel>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetRangeGdTeaching()
         {
             var result = await _teachingAssignmentRepository.GetRangeGdTeaching();
+            return Ok(result);
+        }
+
+        [HttpGet("result")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponseObject<ResultModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetResultModel()
+        {
+            var result = await _teachingAssignmentRepository.GetResultModel();
             return Ok(result);
         }
 

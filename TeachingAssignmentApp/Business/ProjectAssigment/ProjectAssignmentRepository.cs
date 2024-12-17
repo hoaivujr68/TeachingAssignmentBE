@@ -1,10 +1,14 @@
-﻿using LinqKit;
+﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Spreadsheet;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using TeachingAssignmentApp.Business.Aspiration;
 using TeachingAssignmentApp.Business.Class;
 using TeachingAssignmentApp.Business.Teacher;
+using TeachingAssignmentApp.Business.TeachingAssignment.Model;
 using TeachingAssignmentApp.Data;
 using TeachingAssignmentApp.Helper;
 using TeachingAssignmentApp.Model;
@@ -97,27 +101,8 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
             var totalGdInstruct = await _context.Teachers
                 .SumAsync(ta => ta.GdInstruct ?? 0.0);
 
-            // Lấy dữ liệu từ Aspiration và Project trước, rồi xử lý nhóm dữ liệu
-            var gdData = await (from a in _context.Aspirations
-                                join p in _context.Projects on a.ClassName equals p.CourseName
-                                select new { p.CourseName, p.GdInstruct })
-                                 .ToListAsync();  // Lấy dữ liệu về bộ nhớ
-
-            // Nhóm và tạo Dictionary với khóa là CourseName và giá trị là GdInstruct
-            var gdDictionary = gdData
-                                .GroupBy(x => x.CourseName)
-                                .ToDictionary(g => g.Key, g => g.FirstOrDefault().GdInstruct ?? 0.0);
-
-            // Tính tổng GdInstruct từ Aspiration sau khi so sánh với gdDictionary
-            double totalGd = 0.0;
-
-            foreach (var aspiration in _context.Aspirations)
-            {
-                if (gdDictionary.ContainsKey(aspiration.ClassName))
-                {
-                    totalGd += gdDictionary[aspiration.ClassName];
-                }
-            }
+            var totalGd = await _context.ProjectAssignmentInputs
+                .SumAsync(ta => ta.GdInstruct ?? 0.0);
 
             // Kiểm tra tránh chia cho 0
             if (totalGdInstruct == 0) return null;
@@ -126,21 +111,53 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
             return Math.Round(totalGd / totalGdInstruct, 2);
         }
 
-        public async Task<IEnumerable<TeacherModel>> GetAvailableTeachersForStudentId(string studentId)
+        public async Task SwapTeacherAssignmentAsync(Guid teacherAssignmentId1, Guid teacherAssignmentId2)
         {
-            // 1. Lấy thông tin lớp học theo mã lớp
-            var aspirationEntity = await _context.Aspirations
-                .FirstOrDefaultAsync(c => c.StudentId == studentId);
+            var teacherAssignment1 = await _context.ProjectAssigments.FindAsync(teacherAssignmentId1);
+            var teacherAssignment2 = await _context.ProjectAssigments.FindAsync(teacherAssignmentId2);
 
-            var projectAssignment = await _context.ProjectAssigments
-                .FirstOrDefaultAsync(pa => pa.StudentId == studentId);
-
-            if (aspirationEntity == null)
+            if (teacherAssignment1 == null || teacherAssignment2 == null)
             {
-                throw new ArgumentException($"Class with ID {studentId} not found.");
+                throw new InvalidOperationException("One or both teacher assignments could not be found.");
             }
 
-            // 2. Lấy phân công hiện tại cho lớp học
+            // Lưu tạm giá trị của TeacherCode từ teacherAssignment1
+            var tempTeacherCode = teacherAssignment1.TeacherCode;
+            var tempTeacherName = teacherAssignment1.TeacherName;
+
+            // Hoán đổi TeacherCode giữa hai bản ghi
+            teacherAssignment1.TeacherCode = teacherAssignment2.TeacherCode;
+            teacherAssignment1.TeacherName = teacherAssignment2.TeacherName;
+            teacherAssignment2.TeacherCode = tempTeacherCode;
+            teacherAssignment2.TeacherName = tempTeacherName;
+
+            // Lưu các thay đổi vào cơ sở dữ liệu
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<TeacherModel>> GetAvailableTeachersForStudentId(string studentId)
+        {
+            var projectAssignment = await _context.ProjectAssigments
+                .FirstOrDefaultAsync(pa => pa.StudentId == studentId);
+            IQueryable<Data.ProjectAssigment> query = _context.ProjectAssigments;
+            var projectAssignments = await query.OrderBy(pa => pa.TeacherCode).ToListAsync();
+
+            if (projectAssignments == null || projectAssignments.Count == 0)
+            {
+                throw new InvalidOperationException("No projectAssignments available to export.");
+            }
+            var groupedAssignments = projectAssignments
+            .GroupBy(pa => pa.TeacherCode)
+            .Select(g => new
+            {
+                TeacherCode = g.Key,
+                TeacherName = g.First().TeacherName,
+                TotalGdInstruct = g.Sum(pa => pa.GdInstruct),
+                Assignments = g.ToList()
+            })
+            .OrderBy(g => g.TeacherCode)
+            .ToList();
+
             var currentAssignment = await _context.ProjectAssigments
                 .FirstOrDefaultAsync(ta => ta.StudentId == studentId);
 
@@ -167,15 +184,25 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
                     });
                     continue;
                 }
+
+                var test = groupedAssignments
+                    .FirstOrDefault(g => g.TeacherCode == teacher.Code);
+
+                if (test.Assignments.Count > 30)
+                {
+                    continue;
+                }
+
                 var teacherAssignments = await _context.ProjectAssigments
                     .Where(pa => pa.TeacherCode == teacher.Code)
                     .ToListAsync();
+
 
                 // Tính tổng tất cả GdInstruct của giáo viên trong ProjectAssignments
                 double totalTeachingHours = teacherAssignments.Sum(pa => pa.GdInstruct ?? 0.0) + (projectAssignment?.GdInstruct ?? 0.0);
 
                 // Kiểm tra nếu tổng giờ giảng vượt giới hạn
-                if (totalTeachingHours > (teacher.GdTeaching ?? 0) * 1.4)
+                if (totalTeachingHours > (teacher.GdInstruct ?? 0) * 1.5)
                 {
                     continue; // Bỏ qua giáo viên nếu giờ giảng vượt giới hạn
                 }
@@ -191,26 +218,16 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
                 });
             }
 
-            if (!availableTeachers.Any(t => t.Code == currentTeacher.Code))
-            {
-                availableTeachers.Add(new TeacherModel
-                {
-                    Id = currentTeacher.Id,
-                    Code = currentTeacher.Code,
-                    Name = currentTeacher.Name,
-                    GdTeaching = currentTeacher.GdTeaching,
-                    GdInstruct = currentTeacher.GdInstruct
-                });
-            }
-
             return availableTeachers;
         }
 
         public async Task<double> GetTotalGdTeachingByTeacherCode(string teacherCode)
         {
-            return await _context.ProjectAssigments
+            var test =  await _context.ProjectAssigments
                 .Where(ta => ta.TeacherCode == teacherCode)
                 .SumAsync(ta => ta.GdInstruct ?? 0.0);
+
+            return Math.Round(test, 2);
         }
 
         public async Task<Data.ProjectAssigment> GetByIdAsync(Guid id)
@@ -227,6 +244,17 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
 
             await _context.ProjectAssigments.AddAsync(projectAssignment);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task AddRangeAsync(IEnumerable<ProjectAssignmentInput> projectAssignments)
+        {
+            await _context.ProjectAssignmentInputs.AddRangeAsync(projectAssignments);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Data.ProjectAssignmentInput> GetByStudentIdAsync(string studentId)
+        {
+            return await _context.ProjectAssignmentInputs.FirstOrDefaultAsync(c => c.StudentId == studentId);
         }
 
         public async Task<Data.ProjectAssigment> UpdateAsync(Guid id, Data.ProjectAssigment updatedProjectAssigment)
@@ -254,7 +282,7 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
             existingAssignment.GroupName = updatedProjectAssigment.GroupName ?? existingAssignment.GroupName;
             existingAssignment.Status = updatedProjectAssigment.Status ?? existingAssignment.Status;
             existingAssignment.DesireAccept = updatedProjectAssigment.DesireAccept ?? existingAssignment.DesireAccept;
-            existingAssignment.Aspiration1 = updatedProjectAssigment.Aspiration1 ?? existingAssignment.Aspiration1 ;
+            existingAssignment.Aspiration1 = updatedProjectAssigment.Aspiration1 ?? existingAssignment.Aspiration1;
             existingAssignment.Aspiration2 = updatedProjectAssigment.Aspiration2 ?? existingAssignment.Aspiration2;
             existingAssignment.Aspiration3 = updatedProjectAssigment.Aspiration3 ?? existingAssignment.Aspiration3;
             existingAssignment.GdInstruct = updatedProjectAssigment.GdInstruct ?? existingAssignment.GdInstruct;
@@ -280,6 +308,12 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
             await _context.ProjectAssigments.AddRangeAsync(projectAssignments);
             await _context.SaveChangesAsync();
         }
+
+        //public async Task<byte[]> ExportProjectAssignmentByQuota()
+        //{
+        //    IQueryable<Data.ProjectAssigment> query = _context.ProjectAssigments;
+
+        //}
 
         public async Task<byte[]> ExportProjectAssignment(string role)
         {
@@ -342,7 +376,7 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
                 worksheet.Cells[1, 14].Value = "Gd giảng viên";
                 worksheet.Cells[1, 15].Value = "Tổng Gd phân công theo giảng viên";
                 worksheet.Cells[1, 16].Value = "Tỷ lệ";
-                worksheet.Cells[1, 17].Value = "Tổng giờ hướng dẫn - giới hạn";
+                worksheet.Cells[1, 17].Value = "Số giờ phân công thỏa mãn";
                 worksheet.Cells[1, 18].Value = "Hướng dẫn tối đa 30 sinh viên/kỳ";
                 worksheet.Cells[1, 19].Value = "Nguyện vọng hướng dẫn đúng";
 
@@ -360,7 +394,14 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
                     worksheet.Cells[row, 2].Value = group.TeacherName;
                     worksheet.Cells[row, 15].Value = group.TotalGdInstruct;
                     worksheet.Cells[row, 17].Value = "Thỏa mãn";
-                    worksheet.Cells[row, 18].Value = "Thỏa mãn";
+                    if (group.Assignments.Count > 30)
+                    {
+                        worksheet.Cells[row, 18].Value = "Không thỏa mãn";
+                    }
+                    else
+                    {
+                        worksheet.Cells[row, 18].Value = "Thỏa mãn";
+                    }
 
                     // Tìm GdInstruct của giảng viên trong dictionary
                     if (teacherDictionary.TryGetValue(group.TeacherCode, out var teacherGdInstruct))
@@ -401,6 +442,195 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
                 // Trả về file Excel dưới dạng byte array
                 return package.GetAsByteArray();
             }
+        }
+
+        public async Task<IEnumerable<TeacherResultError>> GetMaxAsync()
+        {
+            IQueryable<Data.ProjectAssigment> query = _context.ProjectAssigments;
+            var projectAssignments = await query.OrderBy(pa => pa.TeacherCode).ToListAsync();
+
+            if (projectAssignments == null || projectAssignments.Count == 0)
+            {
+                throw new InvalidOperationException("No projectAssignments available to export.");
+            }
+
+            var groupedAssignments = projectAssignments
+              .GroupBy(pa => pa.TeacherCode)
+              .Select(g => new
+              {
+                  TeacherCode = g.Key,
+                  TeacherName = g.First().TeacherName,
+                  TotalGdInstruct = g.Sum(pa => pa.GdInstruct),
+                  Assignments = g.ToList()
+              })
+              .OrderBy(g => g.TeacherCode)
+              .ToList();
+
+            var teacherResult = new List<TeacherResultError>();
+
+            var teacherCountRB6 = 0;
+            foreach (var group in groupedAssignments)
+            {
+                if (group.Assignments.Count > 30)
+                {
+                    var countError = group.Assignments.Count; // Gán giá trị để sử dụng nhiều lần
+
+                    teacherResult.Add(new TeacherResultError
+                    {
+                        Code = group.TeacherCode,
+                        Name = group.TeacherName,
+                        CountError = countError,
+                        Message = $"Được phân công hướng dẫn {countError} sinh viên"
+                    });
+
+                    teacherCountRB6 += 1;
+                }
+            }
+            return teacherResult;
+
+        }
+
+        public async Task<IEnumerable<ResultModel>> GetResultAsync()
+        {
+            var teachers = await _context.Teachers.ToListAsync();
+            var aspirations = await _context.ProjectAssignmentInputs.ToListAsync();
+            var totalGdInstruct = await _context.Teachers
+                .SumAsync(ta => ta.GdInstruct ?? 0.0);
+            var aspirations1 = await _context.Aspirations.ToListAsync();
+            // Tính tổng GdInstruct từ Aspiration sau khi so sánh với gdDictionary
+            double totalGd = 0.0;
+            var test = await _context.ProjectAssignmentInputs
+                .SumAsync(ta => ta.GdInstruct ?? 0.0);
+
+            totalGd += test;
+            totalGdInstruct = Math.Round(totalGdInstruct, 2);
+            totalGd = Math.Round(totalGd, 2);
+            var rateGd = Math.Round(totalGd / totalGdInstruct, 2);
+            var teacherCountRB9 = 0;
+            IQueryable<Data.ProjectAssigment> query = _context.ProjectAssigments;
+            var projectAssignments = await query.OrderBy(pa => pa.TeacherCode).ToListAsync();
+
+            if (projectAssignments == null || projectAssignments.Count == 0)
+            {
+                throw new InvalidOperationException("No projectAssignments available to export.");
+            }
+
+            // Nhóm phân công theo TeacherCode và tính tổng GdInstruct của từng giảng viên
+            var groupedAssignments = projectAssignments
+                .GroupBy(pa => pa.TeacherCode)
+                .Select(g => new
+                {
+                    TeacherCode = g.Key,
+                    TeacherName = g.First().TeacherName,
+                    TotalGdInstruct = g.Sum(pa => pa.GdInstruct),
+                    Assignments = g.ToList()
+                })
+                .OrderBy(g => g.TeacherCode)
+                .ToList();
+
+            var teacherRB6 = 0;
+            foreach (var group in groupedAssignments)
+            {
+                if (group.Assignments.Count > 30)
+                {
+                    teacherRB6 += 1;
+                }
+            }
+
+            teacherCountRB9 += groupedAssignments
+                .Sum(group => group.Assignments
+                    .Count(assignment =>
+                        (assignment.Aspiration1 != null && group.TeacherName == assignment.Aspiration1) ||
+                        (assignment.Aspiration2 != null && group.TeacherName == assignment.Aspiration2) ||
+                        (assignment.Aspiration3 != null && group.TeacherName == assignment.Aspiration3)));
+
+            var result = new List<ResultModel>
+            {
+                new ResultModel
+                {
+                    Label = "Một đồ án - Một giảng viên",
+                    Value = aspirations.Count,
+                    Code = "RB4",
+                    Type = "Table",
+                    Category = "đồ án"
+                },
+                new ResultModel
+                {
+                    Label = "Số giờ phân công thỏa mãn",
+                    Value = teachers.Count,
+                    Code = "RB5",
+                    Type = "Table",
+                    Category = "giảng viên"
+                },
+                new ResultModel
+                {
+                    Label = "Hướng dẫn tối đa 30 sinh viên/kỳ",
+                    Value = teacherRB6,
+                    Code = "RB6",
+                    Type = "Table",
+                    Category = "giảng viên"
+                },
+                new ResultModel
+                {
+                    Label = "Nguyện vọng hướng dẫn đúng",
+                    Value = teacherCountRB9,
+                    Code = "RB9",
+                    Type = "Table",
+                    Category = "nguyện vọng"
+                },
+                new ResultModel
+                {
+                    Label = "Số giảng viên",
+                    Value = teachers.Count,
+                    Code = "TC",
+                    Type = "Header",
+                    Category = "giảng viên"
+                },
+                new ResultModel
+                {
+                    Label = "Số đồ án",
+                    Value = aspirations.Count,
+                    Code = "NV",
+                    Type = "Header",
+                    Category = "đồ án"
+                },
+                new ResultModel
+                {
+                    Label = "Tổng GD giảng viên",
+                    Value = totalGdInstruct,
+                    Code = "totalGdInstruct",
+                    Type = "Header",
+                    Category = "giảng viên"
+                }
+                   ,
+                   new ResultModel
+                {
+                    Label = "Tổng GD đồ án",
+                    Value = totalGd,
+                    Code = "totalGd",
+                    Type = "Header",
+                    Category = "giảng viên"
+                }
+                   ,
+                   new ResultModel
+                {
+                    Label = "Tỷ lệ trung bình",
+                    Value = rateGd,
+                    Code = "rateGd",
+                    Type = "Header",
+                    Category = "giảng viên"
+                },
+                   new ResultModel
+                {
+                    Label = "Số nguyện vọng",
+                    Value = aspirations1.Count,
+                    Code = "NV1",
+                    Type = "Header",
+                    Category = "giảng viên"
+                }
+            };
+
+            return result;
         }
 
         public async Task<byte[]> ExportAspirationAssignment(string role)
@@ -464,7 +694,7 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
                 worksheet.Cells[1, 14].Value = "Gd giảng viên";
                 worksheet.Cells[1, 15].Value = "Tổng Gd phân công theo giảng viên";
                 worksheet.Cells[1, 16].Value = "Tỷ lệ";
-                worksheet.Cells[1, 17].Value = "Một nguyện vọng - Một giảng viên";
+                worksheet.Cells[1, 17].Value = "Một đồ án - Một giảng viên";
                 worksheet.Cells[1, 18].Value = "Nguyện vọng hướng dẫn đúng";
 
                 // Định dạng tiêu đề
@@ -480,18 +710,18 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
                     // Thêm dữ liệu phân công của từng giảng viên
                     foreach (var assignment in group.Assignments)
                     {
-                    // Thêm thông tin giảng viên
-                    worksheet.Cells[row, 12].Value = group.TeacherCode;
-                    worksheet.Cells[row, 13].Value = group.TeacherName;
-                    worksheet.Cells[row, 15].Value = group.TotalGdInstruct;
-                    worksheet.Cells[row, 17].Value = "Thỏa mãn";
+                        // Thêm thông tin giảng viên
+                        worksheet.Cells[row, 12].Value = group.TeacherCode;
+                        worksheet.Cells[row, 13].Value = group.TeacherName;
+                        worksheet.Cells[row, 15].Value = group.TotalGdInstruct;
+                        worksheet.Cells[row, 17].Value = "Thỏa mãn";
 
-                    // Tìm GdInstruct của giảng viên trong dictionary
-                    if (teacherDictionary.TryGetValue(group.TeacherCode, out var teacherGdInstruct))
-                    {
-                        worksheet.Cells[row, 14].Value = teacherGdInstruct;
-                        worksheet.Cells[row, 16].Value = Math.Round((double)(group.TotalGdInstruct ?? 0) / (double)(teacherGdInstruct ?? 0), 2).ToString();
-                    }
+                        // Tìm GdInstruct của giảng viên trong dictionary
+                        if (teacherDictionary.TryGetValue(group.TeacherCode, out var teacherGdInstruct))
+                        {
+                            worksheet.Cells[row, 14].Value = teacherGdInstruct;
+                            worksheet.Cells[row, 16].Value = Math.Round((double)(group.TotalGdInstruct ?? 0) / (double)(teacherGdInstruct ?? 0), 2).ToString();
+                        }
                         worksheet.Cells[row, 1].Value = assignment.StudentId;
                         worksheet.Cells[row, 2].Value = assignment.StudentName;
                         worksheet.Cells[row, 3].Value = assignment.Topic;
