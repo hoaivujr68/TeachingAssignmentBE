@@ -96,14 +96,14 @@ namespace TeachingAssignmentApp.Business.ETLGeneral
             {
                 new Data.ETLGeneral()
                 {
-                    Label = "Số lượng nguyện vọng không được phân công",
+                    Label = "Số lượng đồ án không được phân công",
                     Value = projectNotAssignment.Content.Count(),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PercentageAssignedWishes
                 },
                 new Data.ETLGeneral()
                 {
-                    Label = "Số lượng nguyện vọng",
+                    Label = "Số lượng đồ án",
                     Value = aspirations.Count(),
                     Category = "",
                     Type = ETLGeneralTypeConstants.PercentageAssignedWishes
@@ -157,7 +157,7 @@ namespace TeachingAssignmentApp.Business.ETLGeneral
                 },
                 new Data.ETLGeneral()
                 {
-                    Label = "Số lượng nguyện vọng",
+                    Label = "Số lượng đồ án cần phân công",
                     Value = aspirations.Count(),
                     Category = "aspiration-management",
                     Type = ETLGeneralTypeConstants.TotalStatistics

@@ -1114,6 +1114,12 @@ namespace TeachingAssignmentApp.Business.Assignment
                     throw new Exception($"Course with code {studenId} not found");
                 }
 
+                var project = await _projectRepository.GetByStudentIdAsync(studenId);
+                if (project == null)
+                {
+                    throw new Exception($"Course with code {studenId} not found");
+                }
+
                 var assignment = new Data.ProjectAssigment
                 {
                     Id = Guid.NewGuid(),
@@ -1130,7 +1136,8 @@ namespace TeachingAssignmentApp.Business.Assignment
                     Aspiration3 = aspiration.Aspiration3,
                     GdInstruct = aspiration.GdInstruct,
                     StatusCode = aspiration.StatusCode,
-                    TeacherName = teacher.Name
+                    TeacherName = teacher.Name,
+                    Name = project.Name,
                 };
 
                 projectAssigments.Add(assignment);

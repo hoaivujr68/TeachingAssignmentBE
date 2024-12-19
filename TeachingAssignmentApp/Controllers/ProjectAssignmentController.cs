@@ -189,6 +189,23 @@ namespace TeachingAssignmentApp.Controllers
             }
         }
 
+        [HttpGet("export-quota")]
+        public async Task<IActionResult> ExportProjectAssignmentByQuota()
+        {
+            try
+            {
+                var fileContent = await _projectAssignmentRepository.ExportProjectAssignmentByQuota();
+                var fileName = "ProjectAssignmentStatistical.xlsx";
+
+                // Trả về file dưới dạng tải xuống
+                return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
         [HttpGet("export-aspiration")]
         [Authorize]
         public async Task<IActionResult> ExportAspirationAssignment()

@@ -280,10 +280,192 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
             }
         }
 
-        //public async Task<byte[]> ExportCheckQuota()
-        //{
-             
-        //}
+        public async Task<byte[]> ExportTeacherAssignmentByQuota()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Thống kê phân công");
+                var teacherAssignments = await _context.TeachingAssignments.ToListAsync();
+                worksheet.Cells[1, 5].Value = "Chưa phân công";
+                worksheet.Cells[2, 5].Value = "Tổng";
+                worksheet.Cells[3, 5].Value = "Đã phân công";
+                worksheet.Cells[4, 5].Value = "GD loại môn học";
+                worksheet.Cells[5, 5].Value = "Quota max (1.5 trung bình)";
+                worksheet.Cells[6, 5].Value = "Loại môn học";
+                worksheet.Cells[1, 6].Value = 0;
+                worksheet.Cells[2, 6].Value = teacherAssignments.Count;
+                worksheet.Cells[3, 6].Value = teacherAssignments.Count;
+                worksheet.Cells[7, 1].Value = "STT";
+                worksheet.Cells[7, 2].Value = "Giảng viên";
+                worksheet.Cells[7, 3].Value = "GD được phân";
+                worksheet.Cells[7, 4].Value = "Tổng phân công";
+
+                var groupedAssignments = teacherAssignments
+                    .GroupBy(p => new { p.CourseName, p.GdTeaching })
+                    .Select(group => new
+                    {
+                        CourseName = group.Key.CourseName,
+                        GdTeaching = group.Key.GdTeaching,
+                        NameAndGroups = string.Join(", ", group
+                            .GroupBy(p => p.Name)
+                            .Select(subGroup => $"{string.Join(", ", subGroup.Select(p => $"{p.CourseName} {p.Name} {p.GroupName}").Distinct())}") // Gắn ClassName vào GroupName
+                        ),
+                        TotalCount = group.Count(), // Tổng số bản ghi trong nhóm
+                        QuotaRange = Math.Ceiling(group.Count() / 49.0 * 1.5)
+                    })
+                    .OrderBy(g => g.GdTeaching) // Sắp xếp theo GdInstruct
+                    .ThenBy(g => g.CourseName)   // Sau đó sắp xếp theo ClassName
+                    .ToList();
+
+                var groupedAssignmentTeachers = teacherAssignments
+                    .GroupBy(p => new { p.TeacherCode, p.TeachingName })
+                    .Select(teacherGroup => new
+                    {
+                        TeacherCode = teacherGroup.Key.TeacherCode,
+                        TeachingName = teacherGroup.Key.TeachingName,
+                        GdInstruct = teacherGroup.Sum(t => t.GdTeaching), // Tổng GdInstruct của tất cả bản ghi của giảng viên
+                        Assignments = teacherGroup
+                            .GroupBy(p => new { p.CourseName, p.GdTeaching })
+                            .Select(classGroup => new
+                            {
+                                CourseName = classGroup.Key.CourseName,
+                                GdTeaching = classGroup.Key.GdTeaching,
+                                TotalCount = classGroup.Count(),
+                                NameAndGroups = string.Join(", ", classGroup
+                                    .Select(p => $"{p.CourseName} {p.Name} {p.GroupName}")
+                                    .Distinct())
+                            })
+                            .ToList()
+                    })
+                    .ToList();
+
+                var groupedAssignmentGroups = teacherAssignments
+                   .GroupBy(p => new { p.GroupName, p.GdTeaching })
+                   .Select(group => new
+                   {
+                       GroupName = group.Key.GroupName,
+                       GdTeaching = group.Key.GdTeaching,
+                       NameAndGroups = string.Join(", ", group
+                           .GroupBy(p => p.Name)
+                           .Select(subGroup => $"{string.Join(", ", subGroup.Select(p => $"{p.GroupName} {p.Name}").Distinct())}") // Gắn ClassName vào GroupName
+                       ),
+                       TotalCount = group.Count(), // Tổng số bản ghi trong nhóm
+                       QuotaRange = Math.Ceiling(group.Count() / 49.0 * 1.5)
+                   })
+                   .OrderBy(g => g.GdTeaching) // Sắp xếp theo GdInstruct
+                   .ThenBy(g => g.GroupName)   // Sau đó sắp xếp theo ClassName
+                   .ToList();
+
+                var groupedAssignmentTeacherGroups = teacherAssignments
+                    .GroupBy(p => new { p.TeacherCode, p.TeachingName })
+                    .Select(teacherGroup => new
+                    {
+                        TeacherCode = teacherGroup.Key.TeacherCode,
+                        TeachingName = teacherGroup.Key.TeachingName,
+                        GdTeaching = teacherGroup.Sum(t => t.GdTeaching), // Tổng GdInstruct của tất cả bản ghi của giảng viên
+                        Assignments = teacherGroup
+                            .GroupBy(p => new { p.GroupName, p.GdTeaching })
+                            .Select(classGroup => new
+                            {
+                                GroupName = classGroup.Key.GroupName,
+                                GdTeaching = classGroup.Key.GdTeaching,
+                                TotalCount = classGroup.Count(),
+                                NameAndGroups = string.Join(", ", classGroup
+                                    .Select(p => $"{p.Name}")
+                                    .Distinct())
+                            })
+                            .ToList()
+                    })
+                    .ToList();
+
+                for (int i = 0; i < groupedAssignmentTeachers.Count; i++)
+                {
+                    var teacherGroup = groupedAssignmentTeachers[i];
+                    worksheet.Cells[i + 8, 1].Value = i + 1;
+                    worksheet.Cells[i + 8, 2].Value = teacherGroup.TeachingName; // Tên giảng viên
+                    worksheet.Cells[i + 8, 3].Value = Math.Round(teacherGroup.GdInstruct ?? 0.0, 2); // Tổng GdInstruct
+                    worksheet.Cells[i + 8, 4].Value = teacherGroup.Assignments.Sum(p => p.TotalCount); // Tổng GdInstruct
+
+                    for (int j = 0; j < groupedAssignments.Count; j++)
+                    {
+                        var assignment = groupedAssignments[j];
+
+                        // Kiểm tra nếu ClassName và GdInstruct của giảng viên phù hợp với nhóm trong groupedAssignments
+                        var matchedAssignment = teacherGroup.Assignments
+                            .FirstOrDefault(a => a.CourseName == assignment.CourseName && a.GdTeaching == assignment.GdTeaching);
+
+                        var cell = worksheet.Cells[i + 8, j + 7]; // Xác định ô hiện tại
+                        var totalCount = matchedAssignment?.TotalCount ?? 0; // Lấy giá trị TotalCount
+                        cell.Value = totalCount;
+
+                        // Tô màu nền ô nếu vượt quá QuotaRange
+                        if (totalCount > assignment.QuotaRange)
+                        {
+                            cell.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                            cell.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red); // Màu nền đỏ
+                        }
+                    }
+                }
+
+                for (int i = 0; i < groupedAssignments.Count; i++)
+                {
+                    worksheet.Cells[1, i + 7].Value = 0;
+                    worksheet.Cells[2, i + 7].Value = groupedAssignments[i].TotalCount;
+                    worksheet.Cells[3, i + 7].Value = groupedAssignments[i].TotalCount;
+                    worksheet.Cells[4, i + 7].Value = groupedAssignments[i].GdTeaching;
+                    worksheet.Cells[5, i + 7].Value = groupedAssignments[i].QuotaRange;
+                    worksheet.Cells[6, i + 7].Value = groupedAssignments[i].NameAndGroups;
+                }
+                var groupedAssignmentsCount = groupedAssignments.Count;
+                worksheet.Cells[4, 8 + groupedAssignmentsCount].Value = "Thống kê theo hệ đào tạo";
+                worksheet.Cells[1, 9 + groupedAssignmentsCount].Value = 0;
+                worksheet.Cells[2, 9 + groupedAssignmentsCount].Value = teacherAssignments.Count;
+                worksheet.Cells[3, 9 + groupedAssignmentsCount].Value = teacherAssignments.Count;
+                for (int i = 0; i < groupedAssignmentGroups.Count; i++)
+                {
+                    worksheet.Cells[1, i + 10 + groupedAssignmentsCount].Value = 0;
+                    worksheet.Cells[2, i + 10 + groupedAssignmentsCount].Value = groupedAssignmentGroups[i].TotalCount;
+                    worksheet.Cells[3, i + 10 + groupedAssignmentsCount].Value = groupedAssignmentGroups[i].TotalCount;
+                    worksheet.Cells[4, i + 10 + groupedAssignmentsCount].Value = groupedAssignmentGroups[i].GdTeaching;
+                    worksheet.Cells[5, i + 10 + groupedAssignmentsCount].Value = groupedAssignmentGroups[i].QuotaRange;
+                    worksheet.Cells[6, i + 10 + groupedAssignmentsCount].Value = groupedAssignmentGroups[i].NameAndGroups;
+                }
+
+                for (int i = 0; i < groupedAssignmentTeacherGroups.Count; i++)
+                {
+                    var teacherGroup = groupedAssignmentTeacherGroups[i];
+
+                    for (int j = 0; j < groupedAssignmentGroups.Count; j++)
+                    {
+                        var assignment = groupedAssignmentGroups[j];
+
+                        // Kiểm tra nếu ClassName và GdInstruct của giảng viên phù hợp với nhóm trong groupedAssignments
+                        var matchedAssignment = teacherGroup.Assignments
+                            .FirstOrDefault(a => a.GroupName == assignment.GroupName && a.GdTeaching == assignment.GdTeaching);
+
+                        var cell = worksheet.Cells[i + 8, j + 10 + groupedAssignmentsCount]; // Xác định ô hiện tại
+                        var totalCount = matchedAssignment?.TotalCount ?? 0; // Lấy giá trị TotalCount
+                        cell.Value = totalCount;
+
+                        // Tô màu nền ô nếu vượt quá QuotaRange
+                        if (totalCount > assignment.QuotaRange)
+                        {
+                            cell.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                            cell.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red); // Màu nền đỏ
+                        }
+                    }
+                }
+
+                // Cố định cột A và B
+                worksheet.View.FreezePanes(8, 3); // Cố định từ hàng 8 và cột 3 (cột C)
+                worksheet.Column(1).AutoFit(); // Cột A
+                worksheet.Column(2).AutoFit();
+                worksheet.Column(3).AutoFit();
+                worksheet.Column(4).AutoFit();
+                worksheet.Column(5).AutoFit();
+                return package.GetAsByteArray();
+            }
+        }
 
         public async Task<byte[]> ExportTeachingAssignment(string role)
         {

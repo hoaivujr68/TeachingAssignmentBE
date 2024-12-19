@@ -9,6 +9,7 @@ namespace TeachingAssignmentApp.Data
     {
         [Key]
         public Guid Id { get; set; }
+        public string? Name { get; set; }
         public string? TeacherCode { get; set; }
         public string? TeacherName { get; set; }
         public string? StudentId { get; set; }

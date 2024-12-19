@@ -48,9 +48,9 @@ namespace TeachingAssignmentApp.Business.ETLGeneral
             return await _context.Classes.ToListAsync();
         }
 
-        public async Task<IEnumerable<Data.Aspiration>> ListAllAspirationAsync()
+        public async Task<IEnumerable<ProjectAssignmentInput>> ListAllAspirationAsync()
         {
-            return await _context.Aspirations.ToListAsync();
+            return await _context.ProjectAssignmentInputs.ToListAsync();
         }
 
         public async Task DeleteByTypeAsync(List<string> types)

@@ -13,7 +13,7 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
         Task<double> GetTotalGdTeachingByTeacherCode(string teacherCode);
         Task<IEnumerable<TeacherModel>> GetAvailableTeachersForStudentId(string studentId);
         Task DeleteAsync(Guid id);
-        Task<Pagination<AspirationModel>> GetProjectNotAssignmentAsync(QueryModel queryModel);
+        Task<Pagination<ProjectAssignmentInput>> GetProjectNotAssignmentAsync(QueryModel queryModel);
         Task<Pagination<TeacherModel>> GetTeacherNotAssignmentAsync(QueryModel queryModel);
         Task<byte[]> ExportProjectAssignment(string role);
         Task<byte[]> ExportAspirationAssignment(string role);
@@ -23,6 +23,7 @@ namespace TeachingAssignmentApp.Business.ProjectAssigment
         Task<Data.ProjectAssignmentInput> GetByStudentIdAsync(string studentId);
         Task<IEnumerable<TeacherResultError>> GetMaxAsync();
         Task SwapTeacherAssignmentAsync(Guid teacherAssignmentId1, Guid teacherAssignmentId2);
+        Task<byte[]> ExportProjectAssignmentByQuota();
 
     }
 }

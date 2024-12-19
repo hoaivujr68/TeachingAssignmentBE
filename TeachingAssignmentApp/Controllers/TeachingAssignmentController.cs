@@ -179,6 +179,24 @@ namespace TeachingAssignmentApp.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        [HttpGet("export-quota")]
+        public async Task<IActionResult> ExportTeachingAssignmentQuota()
+        {
+            try
+            {
+                var fileContent = await _teachingAssignmentRepository.ExportTeacherAssignmentByQuota();
+                var fileName = "TeachingAssignmentStatistical.xlsx";
+
+                // Trả về file dưới dạng tải xuống
+                return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
         [HttpGet("export-class")]
         [Authorize]
         public async Task<IActionResult> ExportClassAssignment()

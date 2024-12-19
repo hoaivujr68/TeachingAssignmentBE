@@ -21,5 +21,6 @@ namespace TeachingAssignmentApp.Business.TeachingAssignment
         Task<IEnumerable<ResultModel>> GetResultModel();
         Task<IEnumerable<TimeTableResponse>> GetTimeTableByRole(string role);
         Task SwapTeacherAssignmentAsync(Guid teacherAssignmentId1, Guid teacherAssignmentId2);
+        Task<byte[]> ExportTeacherAssignmentByQuota();
     }
 }
